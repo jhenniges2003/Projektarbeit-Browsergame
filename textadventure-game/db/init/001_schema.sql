@@ -1,32 +1,14 @@
--- new schema for a text adventure game with enhanced features
-CREATE TABLE lobbies (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    total_hope INT DEFAULT 50,
-    join_code VARCHAR(5) UNIQUE NOT NULL,
-    max_players INT NOT NULL,
-    is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE scenes (
+  id VARCHAR(50) PRIMARY KEY,
+  text TEXT NOT NULL
 );
 
-CREATE TABLE story_nodes (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(50) NOT NULL,
-    content TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
-CREATE TABLE decisions (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    content TEXT NOT NULL,
-    hope_value INT,
-    coming_from INT,
-    going_to INT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (coming_from) REFERENCES story_nodes(id),
-    FOREIGN KEY (going_to) REFERENCES story_nodes(id)
+CREATE TABLE choices (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  scene_id VARCHAR(50),
+  text VARCHAR(255),
+  next_scene_id VARCHAR(50),
+  FOREIGN KEY (scene_id) REFERENCES scenes(id)
 );
 
 CREATE TABLE stories (
