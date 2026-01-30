@@ -1,0 +1,195 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:143.0) Gecko/20100101 Firefox/143.0" version="29.3.6">
+  <diagram name="Seite-1" id="Q_3OtyntNtkCY9C-PJEe">
+    <mxGraphModel dx="2852" dy="1518" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-2" edge="1" parent="1" source="SKmgOJ-KFtMUuPRljgHg-57" style="edgeStyle=orthogonalEdgeStyle;html=1;verticalAlign=bottom;endArrow=open;endSize=8;strokeColor=light-dark(#000000, #ff9090);rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="SKmgOJ-KFtMUuPRljgHg-3" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="491" y="585" as="sourcePoint" />
+            <mxPoint x="351" y="585" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;" value="Anzeige der verfügbaren Wege" vertex="1">
+          <mxGeometry height="60" width="130" x="190" y="270" as="geometry" />
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;" value="Prüfung: Haben alle Spieler eine Auswahl getroffen?" vertex="1">
+          <mxGeometry height="60" width="130" x="460" y="375" as="geometry" />
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-6" parent="1" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.decision;whiteSpace=wrap;" value="" vertex="1">
+          <mxGeometry height="60" width="60" x="495" y="475" as="geometry" />
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-7" edge="1" parent="1" source="SKmgOJ-KFtMUuPRljgHg-3" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;strokeWidth=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <mxPoint x="-412" y="390" as="sourcePoint" />
+            <mxPoint x="490" y="300" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-9" edge="1" parent="1" source="SKmgOJ-KFtMUuPRljgHg-4" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;strokeWidth=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <mxPoint x="530" y="435" as="sourcePoint" />
+            <mxPoint x="525" y="475" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-15" edge="1" parent="1" source="SKmgOJ-KFtMUuPRljgHg-50" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;strokeWidth=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <mxPoint x="-622.5" y="665" as="sourcePoint" />
+            <mxPoint x="205" y="765" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-47" connectable="0" parent="SKmgOJ-KFtMUuPRljgHg-15" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="[&lt;font style=&quot;font-size: 13px;&quot;&gt;Weg eindeutig gewählt]&lt;/font&gt;" vertex="1">
+          <mxGeometry relative="1" x="-0.0007" y="-2" as="geometry">
+            <mxPoint x="77" y="-5" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-60" connectable="0" parent="SKmgOJ-KFtMUuPRljgHg-15" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="[&lt;font style=&quot;font-size: 13px;&quot;&gt;Weg nicht eindeutig gewählt (unendschieden)]&lt;/font&gt;" vertex="1">
+          <mxGeometry relative="1" x="-0.0007" y="-2" as="geometry">
+            <mxPoint x="167" y="-96" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-18" edge="1" parent="1" source="SKmgOJ-KFtMUuPRljgHg-67" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;strokeWidth=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="SKmgOJ-KFtMUuPRljgHg-39" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <Array as="points" />
+            <mxPoint x="-363.5" y="624.5" as="sourcePoint" />
+            <mxPoint x="-310.5" y="625" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-25" edge="1" parent="1" source="SKmgOJ-KFtMUuPRljgHg-69" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;strokeWidth=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" target="SKmgOJ-KFtMUuPRljgHg-70" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <Array as="points">
+              <mxPoint x="1070" y="625" />
+              <mxPoint x="1070" y="300" />
+            </Array>
+            <mxPoint x="-232" y="625" as="sourcePoint" />
+            <mxPoint x="-552" y="515" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-29" parent="1" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.decision;whiteSpace=wrap;" value="" vertex="1">
+          <mxGeometry height="60" width="60" x="530" y="595" as="geometry" />
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-32" parent="1" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;" value="Prüfung: Eindeutige Wegauswahl getroffen?" vertex="1">
+          <mxGeometry height="60" width="130" x="140" y="475" as="geometry" />
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-35" edge="1" parent="1" source="SKmgOJ-KFtMUuPRljgHg-70" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;strokeWidth=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.462;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" target="SKmgOJ-KFtMUuPRljgHg-4" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <Array as="points" />
+            <mxPoint x="-272.5" y="890" as="sourcePoint" />
+            <mxPoint x="-272" y="930" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-39" parent="1" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;" value="Speichern der Auswahl" vertex="1">
+          <mxGeometry height="60" width="130" x="140" y="875" as="geometry" />
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-40" edge="1" parent="1" source="SKmgOJ-KFtMUuPRljgHg-39" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;strokeWidth=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <mxPoint x="-622.5" y="1055" as="sourcePoint" />
+            <mxPoint x="205" y="995" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-42" parent="1" style="ellipse;html=1;shape=endState;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="190" y="995" as="geometry" />
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-44" parent="1" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;" value="Serverseitiges Würfeln zur Wegauswahl" vertex="1">
+          <mxGeometry height="60" width="130" x="495" y="765" as="geometry" />
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-45" edge="1" parent="1" source="SKmgOJ-KFtMUuPRljgHg-69" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;strokeWidth=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;" target="SKmgOJ-KFtMUuPRljgHg-29" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <Array as="points">
+              <mxPoint x="790" y="625" />
+            </Array>
+            <mxPoint x="790" y="705" as="sourcePoint" />
+            <mxPoint x="-552" y="1015" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-66" connectable="0" parent="SKmgOJ-KFtMUuPRljgHg-45" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="&lt;font style=&quot;font-size: 13px;&quot;&gt;[Zeitlimit abgelaufen]&lt;/font&gt;" vertex="1">
+          <mxGeometry relative="1" x="0.2962" y="2" as="geometry">
+            <mxPoint x="35" y="-12" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-72" connectable="0" parent="SKmgOJ-KFtMUuPRljgHg-45" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="&lt;font style=&quot;font-size: 13px;&quot;&gt;[Zeitlimit nicht abgelaufen]&lt;/font&gt;" vertex="1">
+          <mxGeometry relative="1" x="0.2962" y="2" as="geometry">
+            <mxPoint x="301" y="-12" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-50" parent="1" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.decision;whiteSpace=wrap;" value="" vertex="1">
+          <mxGeometry height="60" width="60" x="175" y="595" as="geometry" />
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-51" edge="1" parent="1" source="SKmgOJ-KFtMUuPRljgHg-6" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;strokeWidth=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <Array as="points" />
+            <mxPoint x="-582" y="855" as="sourcePoint" />
+            <mxPoint x="270" y="505" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-52" connectable="0" parent="SKmgOJ-KFtMUuPRljgHg-51" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=13;" value="[Alle Stimmen eingegangen]" vertex="1">
+          <mxGeometry relative="1" x="-0.4449" y="4" as="geometry">
+            <mxPoint x="-33" y="-14" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-53" edge="1" parent="1" source="SKmgOJ-KFtMUuPRljgHg-50" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;strokeWidth=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <mxPoint x="-622" y="895" as="sourcePoint" />
+            <mxPoint x="530" y="625" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-55" edge="1" parent="1" source="SKmgOJ-KFtMUuPRljgHg-32" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;strokeWidth=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <mxPoint x="-622.5" y="785" as="sourcePoint" />
+            <mxPoint x="205" y="595" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-56" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;b&gt;Aktivitätsdiagram -&amp;nbsp;&lt;/b&gt;&lt;/font&gt;&lt;b&gt;&lt;font style=&quot;font-size: 16px;&quot;&gt;Ablauf Auswahl eines Story-Wegs&lt;/font&gt;&lt;/b&gt;" vertex="1">
+          <mxGeometry height="40" width="452" x="20" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-57" parent="1" style="ellipse;html=1;shape=startState;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="80" y="285" as="geometry" />
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-58" edge="1" parent="1" source="SKmgOJ-KFtMUuPRljgHg-6" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;strokeWidth=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <Array as="points" />
+            <mxPoint x="555" y="624.41" as="sourcePoint" />
+            <mxPoint x="780" y="505" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-59" connectable="0" parent="SKmgOJ-KFtMUuPRljgHg-58" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=13;" value="[Nicht alle Stimmen eingegangen]" vertex="1">
+          <mxGeometry relative="1" x="-0.4449" y="4" as="geometry">
+            <mxPoint x="43" y="-6" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-63" edge="1" parent="1" source="SKmgOJ-KFtMUuPRljgHg-29" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;strokeWidth=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="SKmgOJ-KFtMUuPRljgHg-44" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <Array as="points" />
+            <mxPoint x="-353.5" y="634.5" as="sourcePoint" />
+            <mxPoint x="560" y="715" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-64" parent="1" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;" value="Prüfung: Zeitlimit abgelaufen?" vertex="1">
+          <mxGeometry height="60" width="130" x="780" y="475" as="geometry" />
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-67" parent="1" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.decision;whiteSpace=wrap;" value="" vertex="1">
+          <mxGeometry height="60" width="60" x="175" y="765" as="geometry" />
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-68" edge="1" parent="1" source="SKmgOJ-KFtMUuPRljgHg-44" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;strokeWidth=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" target="SKmgOJ-KFtMUuPRljgHg-67" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <Array as="points" />
+            <mxPoint x="410" y="795" as="sourcePoint" />
+            <mxPoint x="570" y="775" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-69" parent="1" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.decision;whiteSpace=wrap;" value="" vertex="1">
+          <mxGeometry height="60" width="60" x="815" y="595" as="geometry" />
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-70" parent="1" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.decision;whiteSpace=wrap;" value="" vertex="1">
+          <mxGeometry height="60" width="60" x="490" y="270" as="geometry" />
+        </mxCell>
+        <mxCell id="SKmgOJ-KFtMUuPRljgHg-71" edge="1" parent="1" source="SKmgOJ-KFtMUuPRljgHg-64" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;strokeWidth=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="SKmgOJ-KFtMUuPRljgHg-69" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <Array as="points" />
+            <mxPoint x="845" y="539" as="sourcePoint" />
+            <mxPoint x="570" y="775" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
