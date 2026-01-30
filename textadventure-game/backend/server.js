@@ -12,6 +12,7 @@ const db = await mysql.createPool({
     database: process.env.DB_NAME
 });
 
+// API-Routen zuerst
 app.get("/api/scenes/:id", async (req, res) => {
     const sceneId = req.params.id;
 
@@ -35,12 +36,14 @@ app.get("/api/scenes/:id", async (req, res) => {
     });
 });
 
-// React ausliefern
+// Static Files (muss VOR der Catch-All-Route stehen!)
 const __dirname = path.resolve();
-app.use(express.static(path.join(__dirname, "public")));
+
+app.use(express.static(path.join(__dirname, "dist")));
+app.use("/assets", express.static(path.join(__dirname, "dist", "assets")));
 
 app.get("*", (_, res) => {
-    res.sendFile(path.join(__dirname, "public/index.html"));
+    res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 
 app.listen(PORT, () => {

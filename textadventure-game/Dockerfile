@@ -1,21 +1,28 @@
-# ---------- Frontend Build ----------
-FROM node:20-alpine AS frontend-build
+# -------- Frontend Build --------
+FROM node:20 AS frontend
+
 WORKDIR /frontend
+
 COPY frontend/package*.json ./
 RUN npm install
+
 COPY frontend .
 RUN npm run build
+# ➜ erzeugt /frontend/dist
 
 
-# ---------- App ----------
-FROM node:20-alpine
+# -------- Backend Runtime --------
+FROM node:20
+
 WORKDIR /app
 
 COPY backend/package*.json ./
-RUN npm install --production
+RUN npm install
 
 COPY backend .
-COPY --from=frontend-build /frontend/dist ./public
+
+# 🔥 Frontend Build übernehmen
+COPY --from=frontend /frontend/dist ./dist
 
 EXPOSE 3000
 CMD ["node", "server.js"]
