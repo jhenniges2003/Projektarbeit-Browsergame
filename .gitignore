@@ -3,3 +3,4 @@
 .DS_Store
 db/.DS_Store
 .postman/
+node_modules/
