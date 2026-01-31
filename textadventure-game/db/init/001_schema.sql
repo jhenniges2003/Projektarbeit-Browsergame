@@ -15,12 +15,14 @@ CREATE TABLE story_nodes (
     content TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-)
+);
 
 CREATE TABLE decisions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     content TEXT NOT NULL,
     hope_value INT,
+    coming_from INT,
+    going_to INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (coming_from) REFERENCES story_nodes(id),
@@ -31,6 +33,8 @@ CREATE TABLE stories (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
+    lobby_id INT,
+    start_story_node_id INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (lobby_id) REFERENCES lobbies(id),
@@ -44,19 +48,22 @@ CREATE TABLE skins (
     resource_path VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-)
+);
 
 CREATE TABLE players (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
     is_alive BOOLEAN DEFAULT TRUE,
+    lobby_id INT,
+    skin_id INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (lobby_id) REFERENCES lobbies(id),
     FOREIGN KEY (skin_id) REFERENCES skins(id)
-)
+);
 
 CREATE TABLE histories (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    lobby_id INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (lobby_id) REFERENCES lobbies(id),
+    FOREIGN KEY (lobby_id) REFERENCES lobbies(id)
 );
