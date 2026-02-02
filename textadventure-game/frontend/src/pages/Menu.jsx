@@ -24,8 +24,8 @@ export default function Menu() {
     const requireNameOrNotify = () => {
         setNameTouched(true);
         if (!name.trim()) {
-        showError("Bitte gib zuerst deinen Namen ein.");
-        return false;
+            showError("Bitte gib zuerst deinen Namen ein.");
+            return false;
         }
         return true;
     };
@@ -37,8 +37,8 @@ export default function Menu() {
 
     const handleCreateLobby = () => {
         if (!requireNameOrNotify()) return;
-        navigate("/lobby");
-        // TODO: Lobby erstellen / Route wechseln
+        navigate("/lobby", { state: {playerName: name.trim() } });
+        // TODO: Lobby erstellen 
     };
 
     return (
@@ -71,7 +71,7 @@ export default function Menu() {
                             LOBBY BEITRETEN
                         </button>
 
-                        <JoinLobbyDialog open={joinOpen} close={() => setJoinOpen(false)} />
+                        <JoinLobbyDialog open={joinOpen} close={() => setJoinOpen(false)} playerName={name.trim()}/>
 
                         <button type="button" className="btn btn-outline-primary" onClick={handleCreateLobby}>
                             LOBBY ERSTELLEN

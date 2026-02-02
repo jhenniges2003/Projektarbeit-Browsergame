@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function JoinLobbyDialog({open, close}){
+export default function JoinLobbyDialog({open, close, playerName}){
     const navigate = useNavigate();
     const [lobbyCode, setLobbyCode] = useState("");
     const inputRef = useRef(null);
@@ -20,7 +20,7 @@ export default function JoinLobbyDialog({open, close}){
     };
 
     const handleJoin = () => {
-        navigate("/lobby");
+        navigate("/lobby", { state: { playerName } });
         close?.()
     }
 
