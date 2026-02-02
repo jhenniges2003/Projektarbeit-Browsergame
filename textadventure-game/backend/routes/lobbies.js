@@ -1,12 +1,14 @@
-import db from "../db";
-import expressApp from "../app";
+import dbInstance from "../db.js";
+import express from "express";
+
+const router = express.Router();
 
 /**
  * GET /api/lobbies
  */
-expressApp.app.get("/api/lobbies", async (req, res) => {
+router.get("/api/lobbies", async (req, res) => {
     try {
-        const [rows] = await db.dbInstance.query(
+        const [rows] = await dbInstance.query(
             "SELECT * FROM lobbies"
         );
 
@@ -30,7 +32,7 @@ expressApp.app.get("/api/lobbies", async (req, res) => {
 /**
  * GET /api/lobby/:id
  */
-expressApp.app.get("/api/lobby/:id", async (req, res) => {
+router.get("/api/lobby/:id", async (req, res) => {
     try {
         const lobbyId = parseInt(req.params.id);
 
@@ -38,7 +40,7 @@ expressApp.app.get("/api/lobby/:id", async (req, res) => {
             return res.status(400).json({ error: "Ungültige Lobby-ID" });
         }
 
-        const [rows] = await db.dbInstance.query(
+        const [rows] = await dbInstance.query(
             "SELECT * FROM lobbies WHERE id = ?",
             [lobbyId]
         );
@@ -63,3 +65,5 @@ expressApp.app.get("/api/lobby/:id", async (req, res) => {
         res.status(500).json({ error: "Serverfehler" });
     }
 });
+
+export default router;
