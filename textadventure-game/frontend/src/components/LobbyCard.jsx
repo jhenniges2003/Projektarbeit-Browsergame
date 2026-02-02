@@ -9,10 +9,11 @@
     image: "",
   }];
 
-  //////// COMPONENETS CALL
   const handleCardClick = (character) => {
     console.log("Clicked character:", character);
   };
+
+  //////// COMPONENETS CALL
 
   return (
     <div
@@ -21,7 +22,7 @@
     >
       {characters.map((character) => (
         <div key={character.id}>
-          <MenuCard
+          <LobbyCard
             characterInfo={character}
             onClick={handleCardClick}
           />
@@ -31,7 +32,7 @@
   );
 */
 
-export default function MenuCard({ characterInfo, onClick }) {
+export default function LobbyCard({ characterInfo, onClick }) {
   return (
     <button
       onClick={() => onClick(characterInfo)}

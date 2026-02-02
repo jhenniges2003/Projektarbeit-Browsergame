@@ -1,12 +1,14 @@
 import colors from "../styles/colors";
 
 /* 
-const players = [
-  { name: "", charactername: "", Image: ""},
-];
+  //////// CONST BUILD
+  const players = [{ name: "", charactername: "", Image: ""}, { name: "", charactername: "", Image: ""}, ...];
+
+  //////// COMPONENETS CALL
+  <LobbyPlayerList players={players} />
 */
 
-export default function PlayerList({ players }) {
+export default function LobbyPlayerList({ players }) {
   return (
     <ul className="list-group">
       {players.map((player, index) => (
