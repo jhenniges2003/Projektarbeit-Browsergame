@@ -24,16 +24,23 @@ function App() {
         return <div>Loading...</div>;
     }
 
+
+    if (import.meta.env.VITE_ENABLE_GAME === "true") {
+        return (
+            <div>
+                <h2>Stories</h2>
+                {stories.map((story) => (
+                    <div key={story.id}>
+                        <h2>{story.title}</h2>
+                        <p>{story.description}</p>
+                    </div>
+                ))}
+            </div>
+        );
+    }
+
     return (
-        <div>
-            <h1>Stories</h1>
-            {stories.map((story) => (
-                <div key={story.id}>
-                    <h2>{story.title}</h2>
-                    <p>{story.description}</p>
-                </div>
-            ))}
-        </div>
+        <h2>Das Spiel ist vorübergehend nicht aktiv</h2>
     );
 }
 
