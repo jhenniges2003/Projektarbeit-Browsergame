@@ -20,6 +20,10 @@ expressApp.app.get("/api/stories", async (req, res) => {
             updated_at: story.updated_at
         }));
 
+        console.log('test');
+
+        console.log(stories);
+
         res.json(stories);
     } catch (error) {
         console.error("Fehler beim Abrufen der Stories:", error);

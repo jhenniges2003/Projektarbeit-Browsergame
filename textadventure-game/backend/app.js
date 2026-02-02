@@ -1,12 +1,12 @@
 import express from "express";
 import path from "path";
-import "./routes/decisions"
-import "./routes/histories"
-import "./routes/lobbies"
-import "./routes/players"
-import "./routes/skins"
-import "./routes/stories"
-import "./routes/storyNodes"
+import "./routes/decisions.js"
+import "./routes/histories.js"
+import "./routes/lobbies.js"
+import "./routes/players.js"
+import "./routes/skins.js"
+import "./routes/stories.js"
+import "./routes/storyNodes.js"
 
 const app = express();
 const PORT = 3000;
