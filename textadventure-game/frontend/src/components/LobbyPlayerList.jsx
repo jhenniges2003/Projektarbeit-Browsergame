@@ -9,35 +9,69 @@ import colors from "../styles/colors";
 */
 
 export default function LobbyPlayerList({ players }) {
-  return (
+  const avatarColors = ["#ff4d4f", "#722ed1", "#faad14", "#13c2c2"];
+
+   return (
     <ul className="list-group">
-      {players.map((player, index) => (
-        <li
-          key={index}
-          className="list-group-item d-flex"
-          style={{border: `1px solid ${colors.secondary}`, borderRadius: "5px", margin: "5px", justifyContent: "flex-start !important"}}
-        >
+      {players.map((player, index) => {
+        const hasCharacter = Boolean(player.image);
 
-          <img
-            src={player.image}
-            alt=""
+        return (
+          <li
+            key={index}
+            className="list-group-item d-flex align-items-center"
             style={{
-              width: "50px",
-              height: "50px",
-              objectFit: "cover",
-              borderRadius: "5px",
-              marginRight: "10px",
-              border: `1px solid ${colors.secondary}`
+              border: `1px solid ${colors.secondary}`,
+              borderRadius: 5,
+              margin: 5,
             }}
-          />
+          >
+            {/* Avatar */}
+            <div
+              style={{
+                width: 50,
+                height: 50,
+                marginRight: 10,
+                borderRadius: 8,
+                backgroundColor: hasCharacter
+                  ? "transparent"
+                  : avatarColors[index % avatarColors.length],
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                overflow: "hidden",
+                border: `1px solid ${colors.secondary}`,
+                flexShrink: 0,
+              }}
+            >
+              {hasCharacter ? (
+                <img
+                  src={player.image}
+                  alt={player.characterName || "Character"}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+              ) : (
+                <i
+                  className="fa-solid fa-user"
+                  style={{ color: "white", fontSize: 22 }}
+                />
+              )}
+            </div>
 
-          <div>
-            <div className="fw-bold">{player.name}</div>
-            <div className="text-muted small">{player.description}</div>
-          </div>
-
-        </li>
-      ))}
+            {/* Player info */}
+            <div>
+              <div className="fw-bold">{player.name}</div>
+              <div className="text-muted small">
+                {player.characterName}
+              </div>
+            </div>
+          </li>
+        );
+      })}
     </ul>
   );
 }

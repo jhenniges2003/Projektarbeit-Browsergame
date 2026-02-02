@@ -35,36 +35,75 @@
 export default function LobbyCard({ characterInfo, onClick }) {
   return (
     <button
+      type="button"
       onClick={() => onClick(characterInfo)}
       style={{
         border: "none",
         padding: 0,
         background: "none",
-        width: "100%",
         textAlign: "left",
       }}
+      className="h-100 w-100"
     >
-      <div className="card h-100" style={{ cursor: "pointer" }}>
-        <div className="row g-0">
-          <div className="col-md-4">
-            <img
-              src={characterInfo.image}
-              className="img-fluid h-100 w-100"
-              alt={characterInfo.name}
-              style={{ objectFit: "cover", borderRadius: "5px", margin: "10px" }}
-            />
+      <div className="card h-100 w-100" style={{ cursor: "pointer", display: "flex", flexDirection: "column", minWidth: 0, }}>
+        <div className="d-flex" style={{ flex: "0 0 auto", minWidth: 0, borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
+          
+          <div
+            className="d-flex align-items-center justify-content-center"
+            style={{
+              width: 100,
+              height: 120,
+              borderRight: "1px solid rgba(0,0,0,0.05)",
+              padding: 2,
+              flexShrink: 0,
+            }}
+          >
+            <div
+              style={{
+                width: 80,
+                height: 80,
+                borderRadius: 6,
+                overflow: "hidden",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <img
+                src={characterInfo.image}
+                alt={characterInfo.name}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain",
+                  display: "block",
+                }}
+              />
+            </div>
           </div>
 
-          <div className="col-md-8">
-            <div className="card-body">
-              <h5 className="card-title">{characterInfo.name}</h5>
-              <p className="card-text">{characterInfo.text}</p>
-            </div>
+          <div className="card-body pb-2" style={{ flex: "1 1 auto", minWidth: 0}}>
+            <h5 className="card-title mb-2 text-truncate">
+              {characterInfo.name}
+            </h5>
+            <p className="card-text mb-0" style={{ overflowWrap: "anywhere" }}>
+              {characterInfo.text}
+            </p>
           </div>
         </div>
 
-        <div className="card-body">
-          <p className="card-text">{characterInfo.subtext}</p>
+        <div
+          className="card-body pt-2"
+          style={{
+            flex: "1 1 auto",
+            minHeight: 0,
+            overflowY: "auto",
+            overflowX: "hidden"
+          }}
+        >
+          <p className="card-text mb-0" style={{ overflowWrap: "anywhere" }}>
+            {characterInfo.subtext}
+          </p>
         </div>
       </div>
     </button>
