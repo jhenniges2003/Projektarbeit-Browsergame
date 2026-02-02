@@ -15,7 +15,7 @@ import { useState } from "react";
   />
 */
 
-export default function GameButtonGrid({ options = [], onSelect }) {
+export default function GameButtonGrid({ options = [], onSelect, voteAvatars = [[], [], [], []], disabled = false }) {
 
   const [selectedIndex, setSelectedIndex] = useState(null);
 
@@ -24,6 +24,31 @@ export default function GameButtonGrid({ options = [], onSelect }) {
     onSelect(option, index);
   };
 
+  const renderVotes = (images = []) => {
+    if(!images.length) {
+      return <div style={{ height: 22}} />;
+    }
+
+    return (
+      <div className="d-flex gap-1 mb-1" style={{ minHeight: 22 }}>
+        {images.map((source, i) => (
+          <img 
+            key={i}
+            src={source}
+            alt=""
+            style={{
+              width: 18,
+              height: 18, 
+              borderRadius: "50%",
+              objectFit: "cover",
+              border: "apx solid rgba(0,0,0,0.2)",
+            }}
+          />
+        ))}
+      </div>
+    )
+  }
+
   return (
     <div className="container p-0">
       <div className="row g-2">
@@ -31,7 +56,7 @@ export default function GameButtonGrid({ options = [], onSelect }) {
         {[0, 1, 2, 3].map((index) => {
           const option = options[index];
           const isSelected = selectedIndex === index;
-          const isDisabled = option === undefined || option === null;
+          const isDisabled = disabled || option == null;
 
           let buttonClass = "btn btn-outline-primary w-100";
           if (isSelected) {
@@ -40,14 +65,18 @@ export default function GameButtonGrid({ options = [], onSelect }) {
 
           return (
             <div className="col-6" key={index}>
-              <button
-                type="button"
-                className={buttonClass}
-                disabled={isDisabled}
-                onClick={() => handleClick(option, index)}
-              >
-                {option ? option : "-"}
-              </button>
+              <div className="border rounded p-2 h-100">
+                {renderVotes(voteAvatars[index] || [])}
+
+                <button
+                  type="button"
+                  className={buttonClass}
+                  disabled={isDisabled}
+                  onClick={() => handleClick(option, index)}
+                >
+                  {option ? option : "-"}
+                </button>
+              </div>
             </div>
           );
         })}
