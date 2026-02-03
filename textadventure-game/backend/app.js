@@ -41,69 +41,69 @@ app.use(skinsRouter);
 app.use(storiesRouter);
 app.use(storyNodesRouter);
 
+const maxPlayers = process.env.MAX_PLAYERS;
+
 // Socket.io Lobby-Logik mit Datenbank
 io.on("connection", (socket) => {
-    const maxPlayers = process.env.MAX_PLAYERS;
-    console.log("Maximale Player", maxPlayers);
-    console.log("Spieler verbunden:", socket.id);
-
+    const domain = socket.handshake.headers.host;
+    const protocol = socket.handshake.secure ? 'https' : 'http';
+    const fullDomain = `${protocol}://${domain}`;
 
     socket.on("createLobby", async (lobbyData) => {
-        const joinCode = Math.random().toString(36).substring(2, 7).toUpperCase();
-
-        console.log("joinCode", joinCode);
-
         try {
-            // In Datenbank speichern
-            await dbInstance.query(
-                "INSERT INTO lobbies (join_code, max_players, is_active) VALUES (?, ?, ?)",
-                [joinCode, maxPlayers, true]
-            );
+            const response = await fetch(`${fullDomain}/api/lobby`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    player_name: lobbyData.player_name,
+                    max_players: maxPlayers
+                })
+            });
 
-            const lobbyId = await dbInstance.query(
-                "SELECT id FROM lobbies WHERE join_code = ? AND is_active = TRUE",
-                [joinCode]
-            )
+            if (!response.ok) {
+                throw new Error('Fehler beim Erstellen der Lobby');
+            }
 
-            //TODO: wahrscheinlich name zu etwas anderes mappen
+            const lobby = await response.json();
+            console.log('Lobby erstellt:', lobby);
 
-            await dbInstance.query(
-                "INSERT INTO players (lobby_id, name) VALUES (?, ?)",
-                [lobbyId, socket.id]
-            );
-
-            socket.join(lobbyId);
-            socket.emit("lobbyCreated", { lobbyId, joinCode });
+            socket.join(lobby.id);
+            socket.emit("Lobby created and joined");
+            console.log("Lobby created and joined Console Log");
+            return lobby;
         } catch (error) {
-            console.error("Fehler beim Erstellen der Lobby:", error);
-            socket.emit("error", "Lobby konnte nicht erstellt werden");
+            console.error('Fehler:', error);
         }
     });
 
     socket.on("joinLobby", async (joinCode) => {
         try {
-            // Lobby aus Datenbank laden
-            const [lobbies] = await dbInstance.query(
-                "SELECT * FROM lobbies WHERE join_code = ? AND is_active = TRUE",
-                [joinCode]
-            );
+            const response = await fetch(`${fullDomain}/api/lobby/join`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    player_name: ,
+                    join_code: joinCode,
+                })
+            });
 
-            if (lobbies.length === 0) {
-                socket.emit("error", "Lobby nicht gefunden");
-                return;
+            if (!response.ok) {
+                throw new Error('Fehler beim Beitreten der Lobby');
             }
 
-            const lobby = lobbies[0];
-
-            // Spieler zur Lobby hinzufügen
-            await dbInstance.query(
-                "INSERT INTO players (lobby_id, name) VALUES (?, ?)",
-                [lobby.id, socket.id]
-            );
+            const lobby = await response.json();
 
             socket.join(lobby.id);
-            socket.emit("lobbyJoined", { lobbyId: lobby.id, lobby });
+            socket.emit("Lobby joined");
+            console.log("Lobby joined Console Log");
+
+            // Benachrichtige andere Spieler in der Lobby
             io.to(lobby.id).emit("playerJoined", { playerId: socket.id });
+
         } catch (error) {
             console.error("Fehler beim Beitreten der Lobby:", error);
             socket.emit("error", "Lobby konnte nicht beigetreten werden");
