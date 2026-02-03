@@ -1,6 +1,5 @@
 import dbInstance from "../db.js";
 import express from "express";
-import crypto from "crypto";
 
 const router = express.Router();
 
@@ -71,7 +70,7 @@ router.get("/api/lobby/:id", async (req, res) => {
 /**
  * POST /api/lobby
  */
-expressApp.app.post("/api/lobby", async (req, res) => {
+router.post("/api/lobby", async (req, res) => {
     try {
         const { name, max_players } = req.body;
         
@@ -79,15 +78,16 @@ expressApp.app.post("/api/lobby", async (req, res) => {
             return res.status(400).json({ error: "Fehlende Daten" });
         }
         
-        const joinCode = crypto.randomBytes(3).toString("hex").toUpperCase();
+        const join_code = Math.floor(10000 + Math.random() * 90000);
 
-        const [result] = await db.dbInstance.query(
+
+        const [result] = await dbInstance.query(
             `INSERT INTO lobbies (name, max_players, join_code)
             VALUES (?, ?, ?)`,
-            [name, max_players, joinCode]
+            [name, max_players, join_code]
         );
 
-        const [rows] = await db.dbInstance.query(
+        const [rows] = await dbInstance.query(
             "SELECT * FROM lobbies WHERE id = ?",
             [result.insertId]
         );
@@ -102,7 +102,7 @@ expressApp.app.post("/api/lobby", async (req, res) => {
 /**
  * POST /api/lobby/join
 */
-expressApp.app.post("/api/lobby/join", async (req, res) => {
+router.post("/api/lobby/join", async (req, res) => {
     try {
         const { player_name, join_code, skin_id } = req.body;
         
@@ -110,7 +110,7 @@ expressApp.app.post("/api/lobby/join", async (req, res) => {
             return res.status(400).json({ error: "Fehlende Daten" });
         }
         
-        const [lobbyRows] = await db.dbInstance.query(
+        const [lobbyRows] = await dbInstance.query(
             "SELECT * FROM lobbies WHERE join_code = ? AND is_active = TRUE",
             [join_code]
         );
@@ -121,7 +121,7 @@ expressApp.app.post("/api/lobby/join", async (req, res) => {
 
         const lobby = lobbyRows[0];
 
-        const [countRows] = await db.dbInstance.query(
+        const [countRows] = await dbInstance.query(
             "SELECT COUNT(*) AS count FROM players WHERE lobby_id = ?",
             [lobby.id]
         );
@@ -130,13 +130,13 @@ expressApp.app.post("/api/lobby/join", async (req, res) => {
             return res.status(403).json({ error: "Lobby voll" });
         }
         
-        const [result] = await db.dbInstance.query(
+        const [result] = await dbInstance.query(
             `INSERT INTO players (name, lobby_id, skin_id)
              VALUES (?, ?, ?)`,
             [player_name, lobby.id, skin_id || null]
         );
 
-        const [playerRows] = await db.dbInstance.query(
+        const [playerRows] = await dbInstance.query(
             "SELECT * FROM players WHERE id = ?",
             [result.insertId]
         );

@@ -1,6 +1,6 @@
 -- new schema for a text adventure game with enhanced features
 CREATE TABLE lobbies (
-    id INT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     total_hope INT DEFAULT 50,
     join_code VARCHAR(5) UNIQUE NOT NULL,
