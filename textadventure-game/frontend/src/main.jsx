@@ -2,31 +2,36 @@ import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 
 function App() {
-    const [scene, setScene] = useState(null);
+    const [stories, setStories] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const loadScene = async (id) => {
-        const res = await fetch(`/api/scenes/${id}`);
-        setScene(await res.json());
+    const loadStories = async () => {
+        try {
+            const res = await fetch(`/api/stories`);
+            setStories(await res.json());
+        } catch (error) {
+            console.error("Failed to load stories:", error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     useEffect(() => {
-        loadScene("start");
+        loadStories();
     }, []);
 
-    if (!scene) return <p>Lade...</p>;
+    if (loading) {
+        return <div>Loading...</div>;
+    }
 
     return (
-        <div style={{ maxWidth: 600, margin: "40px auto" }}>
-            <p>{scene.text}</p>
-
-            {scene.choices.map((c, i) => (
-                <button
-                    key={i}
-                    onClick={() => loadScene(c.next)}
-                    style={{ display: "block", margin: "8px 0" }}
-                >
-                    {c.text}
-                </button>
+        <div>
+            <h1>Stories</h1>
+            {stories.map((story) => (
+                <div key={story.id}>
+                    <h2>{story.title}</h2>
+                    <p>{story.description}</p>
+                </div>
             ))}
         </div>
     );
