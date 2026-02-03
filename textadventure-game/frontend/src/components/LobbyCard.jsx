@@ -82,8 +82,8 @@ export default function LobbyCard({ characterInfo, onClick }) {
             </div>
           </div>
 
-          <div className="card-body pb-2" style={{ flex: "1 1 auto", minWidth: 0}}>
-            <h5 className="card-title mb-2 text-truncate">
+          <div className="card-body pb-2" style={{ flex: "1 1 auto", minWidth: 0, wordBreak: "break-word", hyphens: "auto"}}>
+            <h5 className="card-title mb-2">
               {characterInfo.name}
             </h5>
             <p className="card-text mb-0" style={{ overflowWrap: "anywhere" }}>
