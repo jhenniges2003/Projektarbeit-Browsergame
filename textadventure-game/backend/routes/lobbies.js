@@ -72,19 +72,19 @@ router.get("/api/lobby/:id", async (req, res) => {
  */
 router.post("/api/lobby", async (req, res) => {
     try {
-        const { name, max_players } = req.body;
+        const { player_name, max_players } = req.body;
         
-        if (!name || !max_players) {
+        if (!player_name || !max_players) {
             return res.status(400).json({ error: "Fehlende Daten" });
         }
-        
-        const join_code = Math.floor(10000 + Math.random() * 90000);
+
+        const join_code = Math.random().toString(36).substring(2, 7).toUpperCase();
 
 
         const [result] = await dbInstance.query(
             `INSERT INTO lobbies (name, max_players, join_code)
             VALUES (?, ?, ?)`,
-            [name, max_players, join_code]
+            [player_name, max_players, join_code]
         );
 
         const [rows] = await dbInstance.query(
@@ -104,7 +104,7 @@ router.post("/api/lobby", async (req, res) => {
 */
 router.post("/api/lobby/join", async (req, res) => {
     try {
-        const { player_name, join_code, skin_id } = req.body;
+        const { player_name, join_code} = req.body;
         
         if (!player_name || !join_code) {
             return res.status(400).json({ error: "Fehlende Daten" });
