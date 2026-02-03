@@ -59,7 +59,7 @@ export default function Lobby() {
                   id: 1,
                   title: "Coole Story",
                   buttonLabel: "START",
-                  backgroundImage: "https://placecats.com/1200/500",
+                  backgroundImage: new URL("../assets/images/background.png", import.meta.url).href,
             },
       ];
 
@@ -95,16 +95,16 @@ export default function Lobby() {
                         />
 
                         <main className="bg-white border rounded shadow-sm p-3 d-flex flex-column flex-grow-1"
-                              style={{ minWidth: 0 }}>
+                              style={{ minWidth: 0, minHeight: 0 }}>
                               <StoryCarousel 
                                     slides={storySlides}
-                                    height={320}
+                                    height={380}
                                     disabled={!selectedCharacter}
                                     onStart={handleStart}
                               />
 
                               {/*Character Cards*/}
-                              <section className="border rounded p-3" style={{ height: 300, overflow: "hidden" }}>
+                              <section className="border rounded p-3" style={{ flex: "1 1 auto", minHeight: 0, overflow: "hidden" }}>
                                     <div className="d-flex gap-3 align-items-stretch" 
                                          style={{
                                           height: "100%",

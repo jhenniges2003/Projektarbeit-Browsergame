@@ -33,15 +33,15 @@ export default function GameTimer({ seconds, onFinish }) {
 
   return (
     <div className="d-flex align-items-center gap-3">
-      <div style={{ minWidth: "60px", fontWeight: "bold", color: colors.primary}}>
+      <div style={{ minWidth: "60px", fontWeight: "bold", color: "white"}}>
         {formattedTime}
       </div>
 
-      <div className="progress w-100" style={{ height: "20px" }}>
+      <div className="progress w-100" style={{ height: "20px", color: colors.primary }}>
         <div
           className="progress-bar"
           role="progressbar"
-          style={{ width: progressPercentage + "%" }}
+          style={{ width: progressPercentage + "%", backgroundColor: colors.primary }}
         />
       </div>
     </div>

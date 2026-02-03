@@ -47,6 +47,7 @@ export default function GameDice({ max = 4, onFinish }) {
         fontWeight: "bold",
         backgroundColor: "#fff",
         userSelect: "none",
+        color: "#333"
       }}
     >
       {currentNumber}

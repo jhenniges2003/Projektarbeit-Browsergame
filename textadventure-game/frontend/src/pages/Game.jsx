@@ -156,7 +156,10 @@ export default function Game() {
 
     return (
         <div className="container-fluid bg-light py-3"
-             style={{ minHeight: "100vh" }}
+             style={{ 
+                minHeight: "100vh", 
+                backgroundImage: `url(${new URL("../assets/images/background.png", import.meta.url).href})`
+            }}
         >
             <div className="d-flex gap-3"
                  style={{
@@ -169,15 +172,35 @@ export default function Game() {
                     lobbyCode={null}
                     players={players}
                     onLeave={() => navigate("/")}
+                    variant="opaque"
                 />
 
-                <main className="bg-white border rounded shadow-sm p-3 d-flex flex-column flex-grow-1">
-                    <section className="border rounded p-3 mb-3" style={{ flex: 1, overflow: "auto"}}>
+                <main className="border rounded shadow-sm p-3 d-flex flex-column flex-grow-1"
+                      style={{
+                        background: "rgba(255, 255, 255, 0.10)",
+                        backdropFilter: "blur(2px)",
+                      }}
+                >
+                    <section className="border rounded p-3 mb-3" 
+                             style={{ 
+                                flex: 1, 
+                                overflow: "auto",
+                                background: "rgba(30, 30, 30, 0.75)",
+                                color: "#f1f1f1",
+                                backdropFilter: "blur(6px)",
+                            }} 
+                    >
                         <div className="fw-semibold mb-2">Story</div>
                         <div style={{ whiteSpace: "pre-wrap" }}>{storyText}</div>
                     </section>
 
-                    <section className="border rounded p-3 mb-3">
+                    <section className="border rounded p-3 mb-3"
+                             style={{
+                                background: "rgba(30, 30, 30, 0.75)",
+                                color: "#f1f1f1",
+                                backdropFilter: "blur(6px)",
+                             }}         
+                    >
                         {!everyoneVoted && !showDice ? (
                             <>
                             <div className="fw-semibold mb-3">Zeit zum Abstimmen</div>
@@ -189,7 +212,7 @@ export default function Game() {
                             </>
                         ) : (
                             <>
-                                <div className="text-muted">
+                                <div style={{color: "white"}}>
                                     {roundLocked ? "Entscheidung wird angewendet..." : ""}
                                 </div>
                             </>
@@ -197,16 +220,28 @@ export default function Game() {
                     </section>
 
                     {showDice && !roundLocked && (
-                        <section className="border rounded p-3 mb-3 d-flex align-items-center justify-content-between">
+                        <section className="border rounded p-3 mb-3 d-flex align-items-center justify-content-between"
+                                 style={{
+                                    background: "rgba(30, 30, 30, 0.75)",
+                                    color: "#f1f1f1",
+                                    backdropFilter: "blur(6px)",
+                                }}
+                        >
                             <div>
-                                <div className="text-muted small">Timer abgelaufen - Euer Schicksal entscheidet.</div>
+                                <div className="small" style={{color: "white"}}>Timer abgelaufen - Euer Schicksal entscheidet.</div>
                             </div>
 
                             <GameDice max={4} onFinish={handleDiceFinish} />
                         </section>
                     )}
 
-                    <section className="border rounded p-3">
+                    <section className="border rounded p-3"
+                             style={{
+                                background: "rgba(30, 30, 30, 0.75)",
+                                color: "#f1f1f1",
+                                backdropFilter: "blur(6px)",
+                             }}
+                    >
                         <GameButtonGrid 
                             options={scene.options}
                             onSelect={handleLocalVote}

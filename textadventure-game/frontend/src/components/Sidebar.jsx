@@ -1,16 +1,28 @@
 import PlayerList from "./LobbyPlayerList";
+import colors from "../styles/colors";
 
 export default function Sidebar({
     width = 320,
     lobbyCode,
     players = [],
     onLeave,
-    leaveLabel = "VERLASSEN"
+    leaveLabel = "VERLASSEN",
+    variant = "white"
 }) {
+
+    const isOpaque = variant === "opaque";
     return (
         <aside
-            className="bg-white border rounded shadow-sm p-3 d-flex flex-column"
-            style={{ width, minWidth: width }}
+            className="border rounded shadow-sm p-3 d-flex flex-column"
+            style={{
+                width,
+                minWidth: width,
+                backgroundColor: isOpaque
+                    ? "rgba(255, 255, 255, 0.10)"
+                    : "#ffffff",
+                color: isOpaque ? "#f1f1f1" : "#000",
+                backdropFilter: isOpaque ? "blur(2px)" : "none",
+            }}
         >
             {/* Optional lobby code field for reusability */}
             {lobbyCode ? (
@@ -23,6 +35,7 @@ export default function Sidebar({
                     >
                         {lobbyCode}
                     </div>
+
                 </div>
             ) : null}
 
@@ -35,6 +48,10 @@ export default function Sidebar({
             <button type="button"
                     className="btn btn-outline-danger mt-3"
                     onClick={onLeave}
+                    style={{
+                        backgroundColor: colors.danger,
+                        color: "white"
+                    }}
             >
                 {leaveLabel}
             </button>

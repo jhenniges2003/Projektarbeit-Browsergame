@@ -1,4 +1,5 @@
 import { useState } from "react";
+import colors from "../styles/colors";
 
 /*
   //////// CONST BUILD
@@ -22,6 +23,7 @@ export default function GameButtonGrid({ options = [], onSelect, voteAvatars = [
   const handleClick = (option, index) => {
     setSelectedIndex(index);
     onSelect(option, index);
+    setSelectedIndex(null);
   };
 
   const renderVotes = (images = []) => {
@@ -37,8 +39,8 @@ export default function GameButtonGrid({ options = [], onSelect, voteAvatars = [
             src={source}
             alt=""
             style={{
-              width: 18,
-              height: 18, 
+              width: 20,
+              height: 20, 
               borderRadius: "50%",
               objectFit: "cover",
               border: "apx solid rgba(0,0,0,0.2)",
@@ -73,6 +75,11 @@ export default function GameButtonGrid({ options = [], onSelect, voteAvatars = [
                   className={buttonClass}
                   disabled={isDisabled}
                   onClick={() => handleClick(option, index)}
+                  style={{
+                    color: "white",
+                    borderColor: "white",
+                    backgroundColor: colors.primary
+                  }}
                 >
                   {option ? option : "-"}
                 </button>
