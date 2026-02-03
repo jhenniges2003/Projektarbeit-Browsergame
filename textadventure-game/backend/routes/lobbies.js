@@ -119,7 +119,7 @@ router.post("/api/lobby/join", async (req, res) => {
         if (countRows[0].count >= lobby.max_players) {
             return res.status(403).json({ error: "Lobby voll" });
         }
-        
+
         const [result] = await dbInstance.query(
             `INSERT INTO players (name, lobby_id)
              VALUES (?, ?)`,
@@ -130,6 +130,8 @@ router.post("/api/lobby/join", async (req, res) => {
             "SELECT * FROM players WHERE id = ?",
             [result.insertId]
         );
+
+        console.log("Player Rows:", playerRows);
 
         res.status(201).json({
             lobby,

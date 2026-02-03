@@ -85,7 +85,7 @@ function App() {
     };
 
     const joinLobby = () => {
-        socket.emit("joinLobby", inputJoinCode);
+        socket.emit("joinLobby", { player_name: "Spieler Name", input_join_code: inputJoinCode });
     };
 
     const leaveLobby = () => {
@@ -109,7 +109,7 @@ function App() {
 
                 {!currentLobby ? (
                     <>
-                        <button onClick={createLobby("test")}>Lobby erstellen</button>
+                        <button onClick={createLobby}>Lobby erstellen</button>
 
                         <div>
                             <h3>Lobby beitreten</h3>

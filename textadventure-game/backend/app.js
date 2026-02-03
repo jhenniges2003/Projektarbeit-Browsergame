@@ -49,7 +49,7 @@ io.on("connection", (socket) => {
     const protocol = socket.handshake.secure ? 'https' : 'http';
     const fullDomain = `${protocol}://${domain}`;
 
-    socket.on("createLobby", async (lobbyData) => {
+    socket.on("createLobby", async (data) => {
         try {
             const response = await fetch(`${fullDomain}/api/lobby`, {
                 method: 'POST',
@@ -57,7 +57,7 @@ io.on("connection", (socket) => {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    player_name: lobbyData.player_name,
+                    player_name: data.player_name,
                     max_players: maxPlayers
                 })
             });
@@ -78,7 +78,7 @@ io.on("connection", (socket) => {
         }
     });
 
-    socket.on("joinLobby", async (joinCode) => {
+    socket.on("joinLobby", async (data) => {
         try {
             const response = await fetch(`${fullDomain}/api/lobby/join`, {
                 method: 'POST',
@@ -86,8 +86,8 @@ io.on("connection", (socket) => {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    player_name: ,
-                    join_code: joinCode,
+                    player_name: data.player_name,
+                    join_code: data.input_join_code,
                 })
             });
 
@@ -96,6 +96,8 @@ io.on("connection", (socket) => {
             }
 
             const lobby = await response.json();
+
+            console.log('Lobby:', lobby);
 
             socket.join(lobby.id);
             socket.emit("Lobby joined");
