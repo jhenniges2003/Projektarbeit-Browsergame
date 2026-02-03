@@ -29,28 +29,28 @@ export default function Lobby() {
                   name: "Gurkelbert",
                   text: "Wesen: neugierig, rational",
                   subtext: "Gurkelbert sucht nicht nach Sicherheit, sondern nach Antworten. Alte Symbole faszinieren ihn mehr, als sie ihm Angst machen. Er glaubt, dass alles erklärbar ist, selbst Dinge, die besser unbeantwortet bleiben.",
-                  image: new URL("../assets/images/characters/Charakter_Gelehrter_Gurkelbert.png", import.meta.url).href,
+                  image: new URL("../assets/skins/Charakter_Gelehrter_Gurkelbert.png", import.meta.url).href,
             },
             {
                   id: 2,
                   name: "Zottelrudi",
                   text: "Wesen: chaotisch, enthusiastisch",
                   subtext: "Probiert alles, auch wenn es komisch klingt und rührt ständig in Töpfen herum. Ist immer mit Schürze unterwegs.",
-                  image: new URL("../assets/images/characters/Charakter_Koch_Zottelrudi.png", import.meta.url).href,
+                  image: new URL("../assets/skins/Charakter_Koch_Zottelrudi.png", import.meta.url).href,
             },
             {
                   id: 3,
                   name: "Trudelhut",
                   text: "Wesen: freundlich, fröhlich",
                   subtext: "Sieht immer das Gute, selbst in Pfützen oder Schuhkartons. Lacht viel, auch über Dinge, die niemand lustig findet.",
-                  image: new URL("../assets/images/characters/Charakter_Optimist_Trudelhut.png", import.meta.url).href,
+                  image: new URL("../assets/skins/Charakter_Optimist_Trudelhut.png", import.meta.url).href,
             },
             {
                   id: 4,
                   name: "Glimmerbart",
                   text: "Wesen: ruhig, nachdenklich",
                   subtext: "Geht alles langsam an und denkt über alles nach, sogar über das Wetter oder die Farbe von Steinen.",
-                  image: new URL("../assets/images/characters/Charakter_Philosoph_Glimmerbart.png", import.meta.url).href,
+                  image: new URL("../assets/skins/Charakter_Philosoph_Glimmerbart.png", import.meta.url).href,
             },
       ];
 
@@ -58,9 +58,16 @@ export default function Lobby() {
             {
                   id: 1,
                   title: "Coole Story",
+                  description: "In dieser Story bekämpft ihr gemeinsam den Wald",
                   buttonLabel: "START",
                   backgroundImage: new URL("../assets/images/background.png", import.meta.url).href,
             },
+            {
+                  id: 2,
+                  title: "Schnelle Story",
+                  buttonLabel: "START",
+                  backgroundImage: new URL("../assets/images/background.png", import.meta.url).href,
+            }
       ];
 
       const handleStart = () => {
@@ -72,7 +79,13 @@ export default function Lobby() {
       };
 
       return (
-            <div className="container-fluid bg-light py-3" style={{ minHeight: "100vh" }}>
+            <div
+                  className="container-fluid py-3"
+                  style={{
+                        minHeight: "100vh",
+                        background: "linear-gradient(180deg, #4A741B 0%, #2B430F 100%)",
+                  }}
+            >
                   <Alert 
                         open={showPlayerAlert}
                         onClose={() => setShowPlayerAlert(false)}
