@@ -1,12 +1,14 @@
-import db from "../db";
-import expressApp from "../app";
+import dbInstance from "../db.js";
+import express from "express";
+
+const router = express.Router();
 
 /**
  * GET /api/players
  */
-expressApp.app.get("/api/players", async (req, res) => {
+router.get("/api/players", async (req, res) => {
     try {
-        const [rows] = await db.dbInstance.query(
+        const [rows] = await dbInstance.query(
             "SELECT * FROM players"
         );
 
@@ -29,7 +31,7 @@ expressApp.app.get("/api/players", async (req, res) => {
 /**
  * GET /api/player/:id
  */
-expressApp.app.get("/api/player/:id", async (req, res) => {
+router.get("/api/player/:id", async (req, res) => {
     try {
         const playerId = parseInt(req.params.id);
 
@@ -37,7 +39,7 @@ expressApp.app.get("/api/player/:id", async (req, res) => {
             return res.status(400).json({ error: "Ungültige Player-ID" });
         }
 
-        const [rows] = await db.dbInstance.query(
+        const [rows] = await dbInstance.query(
             "SELECT * FROM players WHERE id = ?",
             [playerId]
         );
@@ -65,7 +67,7 @@ expressApp.app.get("/api/player/:id", async (req, res) => {
 /**
  * GET /api/lobby/:lobbyId/players
  */
-expressApp.app.get("/api/lobby/:lobbyId/players", async (req, res) => {
+router.get("/api/lobby/:lobbyId/players", async (req, res) => {
     try {
         const lobbyId = parseInt(req.params.lobbyId);
 
@@ -73,7 +75,7 @@ expressApp.app.get("/api/lobby/:lobbyId/players", async (req, res) => {
             return res.status(400).json({ error: "Ungültige Lobby-ID" });
         }
 
-        const [rows] = await db.dbInstance.query(
+        const [rows] = await dbInstance.query(
             "SELECT * FROM players WHERE lobby_id = ?",
             [lobbyId]
         );
@@ -93,3 +95,5 @@ expressApp.app.get("/api/lobby/:lobbyId/players", async (req, res) => {
         res.status(500).json({ error: "Serverfehler" });
     }
 });
+
+export default router;

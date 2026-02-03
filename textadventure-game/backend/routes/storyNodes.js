@@ -1,12 +1,14 @@
-import db from "../db";
-import expressApp from "../app";
+import dbInstance from "../db.js";
+import express from "express";
+
+const router = express.Router();
 
 /**
  * GET /api/decisions
  */
-expressApp.app.get("/api/story_nodes", async (req, res) => {
+router.get("/api/story_nodes", async (req, res) => {
     try {
-        const [rows] = await db.dbInstance.query(
+        const [rows] = await dbInstance.query(
             "SELECT * FROM story_nodes"
         );
 
@@ -28,7 +30,7 @@ expressApp.app.get("/api/story_nodes", async (req, res) => {
 /**
  * GET /api/decision/:id
  */
-expressApp.app.get("/api/story_nodes/:id", async (req, res) => {
+router.get("/api/story_nodes/:id", async (req, res) => {
     try {
         const nodeId = parseInt(req.params.id);
 
@@ -36,7 +38,7 @@ expressApp.app.get("/api/story_nodes/:id", async (req, res) => {
             return res.status(400).json({ error: "Ungültige Decision-ID" });
         }
 
-        const [rows] = await db.dbInstance.query(
+        const [rows] = await dbInstance.query(
             "SELECT * FROM story_nodes WHERE id = ?",
             [nodeId]
         );
@@ -59,3 +61,5 @@ expressApp.app.get("/api/story_nodes/:id", async (req, res) => {
         res.status(500).json({ error: "Serverfehler" });
     }
 });
+
+export default router;

@@ -1,12 +1,14 @@
-import db from "../db";
-import expressApp from "../app";
+import dbInstance from "../db.js";
+import express from "express";
+
+const router = express.Router();
 
 /**
  * GET /api/skins
  */
-expressApp.app.get("/api/skins", async (req, res) => {
+router.get("/api/skins", async (req, res) => {
     try {
-        const [rows] = await db.dbInstance.query(
+        const [rows] = await dbInstance.query(
             "SELECT * FROM skins"
         );
 
@@ -29,7 +31,7 @@ expressApp.app.get("/api/skins", async (req, res) => {
 /**
  * GET /api/skin/:id
  */
-expressApp.app.get("/api/skin/:id", async (req, res) => {
+router.get("/api/skin/:id", async (req, res) => {
     try {
         const skinId = parseInt(req.params.id);
 
@@ -37,7 +39,7 @@ expressApp.app.get("/api/skin/:id", async (req, res) => {
             return res.status(400).json({ error: "Ungültige Skin-ID" });
         }
 
-        const [rows] = await db.dbInstance.query(
+        const [rows] = await dbInstance.query(
             "SELECT * FROM skins WHERE id = ?",
             [skinId]
         );
@@ -61,3 +63,5 @@ expressApp.app.get("/api/skin/:id", async (req, res) => {
         res.status(500).json({ error: "Serverfehler" });
     }
 });
+
+export default router;

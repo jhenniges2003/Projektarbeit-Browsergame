@@ -1,13 +1,15 @@
-import db from "../db";
-import expressApp from "../app";
+import dbInstance from "../db.js";
+import express from "express";
 import crypto from "crypto";
+
+const router = express.Router();
 
 /**
  * GET /api/lobbies
  */
-expressApp.app.get("/api/lobbies", async (req, res) => {
+router.get("/api/lobbies", async (req, res) => {
     try {
-        const [rows] = await db.dbInstance.query(
+        const [rows] = await dbInstance.query(
             "SELECT * FROM lobbies"
         );
 
@@ -31,7 +33,7 @@ expressApp.app.get("/api/lobbies", async (req, res) => {
 /**
  * GET /api/lobby/:id
  */
-expressApp.app.get("/api/lobby/:id", async (req, res) => {
+router.get("/api/lobby/:id", async (req, res) => {
     try {
         const lobbyId = parseInt(req.params.id);
 
@@ -39,7 +41,7 @@ expressApp.app.get("/api/lobby/:id", async (req, res) => {
             return res.status(400).json({ error: "Ungültige Lobby-ID" });
         }
 
-        const [rows] = await db.dbInstance.query(
+        const [rows] = await dbInstance.query(
             "SELECT * FROM lobbies WHERE id = ?",
             [lobbyId]
         );
@@ -65,22 +67,23 @@ expressApp.app.get("/api/lobby/:id", async (req, res) => {
     }
 });
 
+
 /**
  * POST /api/lobby
  */
 expressApp.app.post("/api/lobby", async (req, res) => {
     try {
         const { name, max_players } = req.body;
-
+        
         if (!name || !max_players) {
             return res.status(400).json({ error: "Fehlende Daten" });
         }
-
+        
         const joinCode = crypto.randomBytes(3).toString("hex").toUpperCase();
 
         const [result] = await db.dbInstance.query(
             `INSERT INTO lobbies (name, max_players, join_code)
-             VALUES (?, ?, ?)`,
+            VALUES (?, ?, ?)`,
             [name, max_players, joinCode]
         );
 
@@ -98,20 +101,20 @@ expressApp.app.post("/api/lobby", async (req, res) => {
 
 /**
  * POST /api/lobby/join
- */
+*/
 expressApp.app.post("/api/lobby/join", async (req, res) => {
     try {
         const { player_name, join_code, skin_id } = req.body;
-
+        
         if (!player_name || !join_code) {
             return res.status(400).json({ error: "Fehlende Daten" });
         }
-
+        
         const [lobbyRows] = await db.dbInstance.query(
             "SELECT * FROM lobbies WHERE join_code = ? AND is_active = TRUE",
             [join_code]
         );
-
+        
         if (lobbyRows.length === 0) {
             return res.status(404).json({ error: "Lobby nicht gefunden" });
         }
@@ -126,7 +129,7 @@ expressApp.app.post("/api/lobby/join", async (req, res) => {
         if (countRows[0].count >= lobby.max_players) {
             return res.status(403).json({ error: "Lobby voll" });
         }
-
+        
         const [result] = await db.dbInstance.query(
             `INSERT INTO players (name, lobby_id, skin_id)
              VALUES (?, ?, ?)`,
@@ -147,3 +150,5 @@ expressApp.app.post("/api/lobby/join", async (req, res) => {
         res.status(500).json({ error: "Serverfehler" });
     }
 });
+
+export default router;

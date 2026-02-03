@@ -6,10 +6,10 @@ services:
     ports:
       - "3000:3000"
     environment:
-      DB_HOST: mysql
-      DB_USER: game
-      DB_PASSWORD: secret
-      DB_NAME: textadventure
+      DB_HOST: ${DB_HOST}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
     depends_on:
       - mysql
 
@@ -18,10 +18,10 @@ services:
     ports:
       - "3306:3306"
     environment:
-      MYSQL_DATABASE: textadventure
-      MYSQL_USER: game
-      MYSQL_PASSWORD: secret
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
     volumes:
       - mysql_local:/var/lib/mysql
       - ./db/init:/docker-entrypoint-initdb.d:ro

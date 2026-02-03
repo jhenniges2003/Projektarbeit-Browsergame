@@ -1,12 +1,14 @@
-import db from "../db";
-import expressApp from "../app";
+import dbInstance from "../db.js";
+import express from "express";
+
+const router = express.Router();
 
 /**
  * GET /api/histories
  */
-expressApp.app.get("/api/histories", async (req, res) => {
+router.get("/api/histories", async (req, res) => {
     try {
-        const [rows] = await db.dbInstance.query(
+        const [rows] = await dbInstance.query(
             "SELECT * FROM histories"
         );
 
@@ -26,7 +28,7 @@ expressApp.app.get("/api/histories", async (req, res) => {
 /**
  * GET /api/history/:id
  */
-expressApp.app.get("/api/history/:id", async (req, res) => {
+router.get("/api/history/:id", async (req, res) => {
     try {
         const historyId = parseInt(req.params.id);
 
@@ -34,7 +36,7 @@ expressApp.app.get("/api/history/:id", async (req, res) => {
             return res.status(400).json({ error: "Ungültige History-ID" });
         }
 
-        const [rows] = await db.dbInstance.query(
+        const [rows] = await dbInstance.query(
             "SELECT * FROM histories WHERE id = ?",
             [historyId]
         );
@@ -59,7 +61,7 @@ expressApp.app.get("/api/history/:id", async (req, res) => {
 /**
  * GET /api/lobby/:lobbyId/histories
  */
-expressApp.app.get("/api/lobby/:lobbyId/histories", async (req, res) => {
+router.get("/api/lobby/:lobbyId/histories", async (req, res) => {
     try {
         const lobbyId = parseInt(req.params.lobbyId);
 
@@ -67,7 +69,7 @@ expressApp.app.get("/api/lobby/:lobbyId/histories", async (req, res) => {
             return res.status(400).json({ error: "Ungültige Lobby-ID" });
         }
 
-        const [rows] = await db.dbInstance.query(
+        const [rows] = await dbInstance.query(
             "SELECT * FROM histories WHERE lobby_id = ?",
             [lobbyId]
         );
@@ -84,3 +86,5 @@ expressApp.app.get("/api/lobby/:lobbyId/histories", async (req, res) => {
         res.status(500).json({ error: "Serverfehler" });
     }
 });
+
+export default router;

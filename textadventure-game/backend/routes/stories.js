@@ -1,12 +1,14 @@
-import db from "../db";
-import expressApp from "../app";
+import dbInstance from "../db.js";"../db.js";
+import express from "express";
+
+const router = express.Router();
 
 /**
  * GET /api/stories
  */
-expressApp.app.get("/api/stories", async (req, res) => {
+router.get("/api/stories", async (req, res) => {
     try {
-        const [rows] = await db.dbInstance.query(
+        const [rows] = await dbInstance.query(
             "SELECT * FROM stories"
         );
 
@@ -34,7 +36,7 @@ expressApp.app.get("/api/stories", async (req, res) => {
 /**
  * GET /api/story/:id
  */
-expressApp.app.get("/api/story/:id", async (req, res) => {
+router.get("/api/story/:id", async (req, res) => {
     try {
         const storyId = parseInt(req.params.id);
 
@@ -42,7 +44,7 @@ expressApp.app.get("/api/story/:id", async (req, res) => {
             return res.status(400).json({ error: "Ungültige Story-ID" });
         }
 
-        const [rows] = await db.dbInstance.query(
+        const [rows] = await dbInstance.query(
             "SELECT * FROM stories WHERE id = ?",
             [storyId]
         );
@@ -67,3 +69,5 @@ expressApp.app.get("/api/story/:id", async (req, res) => {
         res.status(500).json({ error: "Serverfehler" });
     }
 });
+
+export default router;
