@@ -44,6 +44,7 @@ CREATE TABLE stories (
 CREATE TABLE skins (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
+    personality varchar(255) NOT NULL,
     description TEXT NOT NULL,
     resource_path VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -64,6 +65,7 @@ CREATE TABLE players (
 CREATE TABLE histories (
     id INT AUTO_INCREMENT PRIMARY KEY,
     lobby_id INT,
+    decision_going_to_ids json,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (lobby_id) REFERENCES lobbies(id)
 );

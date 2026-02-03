@@ -1,11 +1,11 @@
 -- Insert data for the text adventure game
 
 -- Insert skins
-INSERT INTO skins (name, description, resource_path) VALUES
-('Gelehrter', 'Gurkelbert sucht nicht nach Sicherheit, sondern nach Antworten. Alte Symbole faszinieren ihn mehr, als sie ihm Angst machen. Er glaubt, dass alles erklärbar ist, selbst Dinge, die besser unbeantwortet bleiben.', '/skins/gelehrter.png'),
-('Koch', 'Probiert alles, auch wenn es komisch klingt, und rührt ständig in Töpfen herum und ist Immer mit Schürze unterwegs', '/skins/koch.png'),
-('Philosoph', 'Geht alles langsam an und denkt über alles nach, sogar über das Wetter oder die Farbe von Steinen.', '/skins/philosoph.png'),
-('Optimist', 'Sieht immer das Gute, selbst in Pfützen oder Schuhkartons, Lacht viel, auch über Dinge, die niemand lustig findet.', '/skins/optimist.png');
+INSERT INTO skins (name, personality, description, resource_path) VALUES
+('Gelehrter', 'neugierig, rational', 'Gurkelbert sucht nicht nach Sicherheit, sondern nach Antworten. Alte Symbole faszinieren ihn mehr, als sie ihm Angst machen. Er glaubt, dass alles erklärbar ist, selbst Dinge, die besser unbeantwortet bleiben.', '/skins/gelehrter.png'),
+('Koch','chaotisch, enthusiastisch','Probiert alles, auch wenn es komisch klingt, und rührt ständig in Töpfen herum und ist Immer mit Schürze unterwegs', '/skins/koch.png'),
+('Philosoph', 'ruhig, nachdenklich', 'Geht alles langsam an und denkt über alles nach, sogar über das Wetter oder die Farbe von Steinen.', '/skins/philosoph.png'),
+('Optimist', 'freundlich, fröhlich', 'Sieht immer das Gute, selbst in Pfützen oder Schuhkartons, Lacht viel, auch über Dinge, die niemand lustig findet.', '/skins/optimist.png');
 
 
 -- Insert story nodes
