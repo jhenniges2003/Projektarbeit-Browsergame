@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 export default function StoryCarousel({
     slides = [],
@@ -25,7 +25,6 @@ export default function StoryCarousel({
             </section>
         );
     }
-
     return (
         <section
             className="border rounded position-relative overflow-hidden mb-3"
@@ -46,20 +45,35 @@ export default function StoryCarousel({
             >
                 <div className="text-center px-3">
                     <h2
-                        className="mb-3"
+                        className="mb-1"
                         style={{
                             color: "white",
-                            textShadow: "0 2px 8px rgba(0,0,0,0.5",
+                            textShadow: "0 2px 8px rgba(0,0,0,0.5)",
+                            fontWeight: "bold",
+                            fontSize: 45
                         }}
                     >
                         {active.title}
                     </h2>
+                    <p className="mb-3"
+                       style={{
+                        color: "white",
+                        fontWeight: "bold",
+                        textShadow: "0 2px 8px rgba(0,0,0,0.5)",
+                       }}
+                    >
+                        {active.description}
+                    </p>
 
                     <button
                         type="button"
                         className="btn btn-light px-4"
                         disabled={disabled}
-                        onClick={() => onStart?.(active, index)}>
+                        onClick={() => onStart?.(active, index)}
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title="Nach Spielstart ist das Betreten der Lobby nicht mehr möglich."
+                        >
                         {active.buttonLabel ?? "START"}
                     </button>
                 </div>
@@ -69,11 +83,22 @@ export default function StoryCarousel({
                 <button
                     type="button"
                     aria-label="Vorherige Story"
-                    onClick={goPrev}
+                    onClick={goPrevious}
                     className="btn btn-light position-absolute top-50 start-0 translate-middle-y ms-3 rounded-circle"
-                    style={{ width: 42, height: 42, opacity: 0.9 }}
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="Vorherige Story"
+                    style={{ 
+                        width: 42, 
+                        height: 42, 
+                        background: "rgba(255, 255, 255, 0.10)",
+                        backdropFilter: "blur(2px)",
+                        borderColor: "black",
+                        color: "white",
+                        fontWeight: "bold"
+                    }}
                 >
-                    ‹
+                    <i className="fa-solid fa-chevron-left"></i>
                 </button>
             )}
 
@@ -83,9 +108,20 @@ export default function StoryCarousel({
                     aria-label="Nächste Story"
                     onClick={goNext}
                     className="btn btn-light position-absolute top-50 end-0 translate-middle-y me-3 rounded-circle"
-                    style={{ width: 42, height: 42, opacity: 0.9 }}
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="Nächste Story"
+                    style={{ 
+                        width: 42, 
+                        height: 42, 
+                        background: "rgba(255, 255, 255, 0.10)",
+                        backdropFilter: "blur(2px)",
+                        borderColor: "black",
+                        color: "white",
+                        fontWeight: "bold"
+                    }}
                 >
-                    ›
+                    <i className="fa-solid fa-chevron-right"></i>
                 </button>
             )}
 
@@ -98,8 +134,8 @@ export default function StoryCarousel({
                         onClick={() => setIndex(i)}
                         aria-label={`Gehe zu Story ${i + 1}`}
                         style={{
-                        width: 10,
-                        height: 10,
+                        width: 12,
+                        height: 12,
                         borderRadius: 999,
                         border: "none",
                         background:

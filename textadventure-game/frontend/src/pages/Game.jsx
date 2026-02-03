@@ -173,6 +173,8 @@ export default function Game() {
                     players={players}
                     onLeave={() => navigate("/")}
                     variant="opaque"
+                    tooltipText="Nach dem Verlassen ist die Rückkehr in diese Lobby nicht mehr möglich."
+                    tooltipPlacement="top"
                 />
 
                 <main className="border rounded shadow-sm p-3 d-flex flex-column flex-grow-1"

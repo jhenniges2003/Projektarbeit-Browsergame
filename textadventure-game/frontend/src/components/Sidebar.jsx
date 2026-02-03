@@ -7,10 +7,13 @@ export default function Sidebar({
     players = [],
     onLeave,
     leaveLabel = "VERLASSEN",
-    variant = "white"
+    variant = "white",
+    tooltipText = null,
+    tooltipPlacement = "top"
 }) {
-
     const isOpaque = variant === "opaque";
+    const hasTooltip = typeof tooltipText === "string" && tooltipText.trim().length > 0;
+
     return (
         <aside
             className="border rounded shadow-sm p-3 d-flex flex-column"
@@ -52,6 +55,14 @@ export default function Sidebar({
                         backgroundColor: colors.danger,
                         color: "white"
                     }}
+                    {...(hasTooltip
+                        ? {
+                            "data-bs-toggle": "tooltip",
+                            "data-bs-placement": tooltipPlacement,
+                            title: tooltipText,
+                        }
+                        : {}
+                    )}
             >
                 {leaveLabel}
             </button>
