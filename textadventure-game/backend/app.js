@@ -3,14 +3,20 @@ import path from "path";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import dbInstance from "./db.js";
+import {
+    createLobbyInDB,
+    joinLobbyInDB,
+    leaveLobbyInDB
+} from "./services/lobbyService.js";
 
 const app = express();
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
-        origin: "*",
+        origin: "https://textadventure-game.thorben-dev.org",
         methods: ["GET", "POST"],
+        credentials: true
     }
 });
 
@@ -41,101 +47,69 @@ app.use(skinsRouter);
 app.use(storiesRouter);
 app.use(storyNodesRouter);
 
-const maxPlayers = process.env.MAX_PLAYERS;
+const maxPlayers = process.env.MAX_PLAYERS || 4;
 
-// Socket.io Lobby-Logik mit Datenbank
+// Socket.io Lobby-Logik
 io.on("connection", (socket) => {
-    const domain = socket.handshake.headers.host;
-    const protocol = socket.handshake.secure ? 'https' : 'http';
-    const fullDomain = `${protocol}://${domain}`;
+    console.log("Neuer Socket verbunden:", socket.id);
 
     socket.on("createLobby", async (data) => {
         try {
-            const response = await fetch(`${fullDomain}/api/lobby`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    player_name: data.player_name,
-                    max_players: maxPlayers
-                })
-            });
+            console.log("Erstelle Lobby für:", data.player_name);
 
-            if (!response.ok) {
-                throw new Error('Fehler beim Erstellen der Lobby');
-            }
+            const result = await createLobbyInDB(data.player_name, maxPlayers);
 
-            const lobby = await response.json();
-            console.log('Lobby erstellt:', lobby);
+            socket.join(result.lobby.id);
+            socket.emit("lobbyCreated", result);
+            console.log("Lobby erstellt:", result.lobby.id, "Join-Code:", result.lobby.join_code);
 
-            socket.join(lobby.id);
-            socket.emit("Lobby created and joined");
-            console.log("Lobby created and joined Console Log");
-            return lobby;
         } catch (error) {
-            console.error('Fehler:', error);
+            console.error('Fehler beim Erstellen der Lobby:', error);
+            socket.emit("error", { message: "Lobby konnte nicht erstellt werden 2" });
         }
     });
 
     socket.on("joinLobby", async (data) => {
         try {
-            const response = await fetch(`${fullDomain}/api/lobby/join`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    player_name: data.player_name,
-                    join_code: data.input_join_code,
-                })
-            });
+            console.log("Spieler tritt Lobby bei:", data.player_name);
 
-            if (!response.ok) {
-                throw new Error('Fehler beim Beitreten der Lobby');
-            }
+            const result = await joinLobbyInDB(data.player_name, data.input_join_code);
 
-            const lobby = await response.json();
-
-            console.log('Lobby:', lobby);
-
-            socket.join(lobby.id);
-            socket.emit("Lobby joined");
-            console.log("Lobby joined Console Log");
+            socket.join(result.lobby.id);
+            socket.emit("lobbyJoined", result);
+            console.log("Lobby beigetreten:", result.lobby.id);
 
             // Benachrichtige andere Spieler in der Lobby
-            io.to(lobby.id).emit("playerJoined", { playerId: socket.id });
+            socket.to(result.lobby.id).emit("playerJoined", {
+                playerId: result.player.id,
+                playerName: result.player.name
+            });
 
         } catch (error) {
             console.error("Fehler beim Beitreten der Lobby:", error);
-            socket.emit("error", "Lobby konnte nicht beigetreten werden");
+            socket.emit("error", {
+                message: error.message || "Lobby konnte nicht beigetreten werden"
+            });
         }
     });
 
-    socket.on("leaveLobby", async (lobbyId) => {
+    socket.on("leaveLobby", async (data) => {
         try {
-            await dbInstance.query(
-                "DELETE FROM players WHERE lobby_id = ? AND id = ?",
-                [lobbyId, socket.id]
-            );
+            console.log("Spieler verlässt Lobby:", data.playerId);
 
-            socket.leave(lobbyId);
-            io.to(lobbyId).emit("playerLeft", { playerId: socket.id });
+            const result = await leaveLobbyInDB(data.lobbyId, data.playerId);
 
-            // Prüfen, ob Lobby leer ist
-            const [players] = await dbInstance.query(
-                "SELECT COUNT(*) as count FROM players WHERE lobby_id = ?",
-                [lobbyId]
-            );
+            socket.leave(data.lobbyId);
+            socket.emit("lobbyLeft", result);
 
-            if (players[0].count === 0) {
-                await dbInstance.query(
-                    "UPDATE lobbies SET is_active = FALSE WHERE id = ?",
-                    [lobbyId]
-                );
-            }
+            // Benachrichtige andere Spieler
+            socket.to(data.lobbyId).emit("playerLeft", { playerId: data.playerId });
+
         } catch (error) {
             console.error("Fehler beim Verlassen der Lobby:", error);
+            socket.emit("error", {
+                message: error.message || "Lobby konnte nicht verlassen werden"
+            });
         }
     });
 
@@ -143,29 +117,23 @@ io.on("connection", (socket) => {
         console.log("Spieler getrennt:", socket.id);
 
         try {
+            // Finde alle Lobbies, in denen der Spieler ist
             const [playerLobbies] = await dbInstance.query(
-                "SELECT lobby_id FROM players WHERE name = ?",
+                "SELECT id, lobby_id FROM players WHERE name = ?",
                 [socket.id]
             );
 
-            for (const { lobby_id } of playerLobbies) {
-                await dbInstance.query(
-                    "DELETE FROM players WHERE lobby_id = ? AND name = ?",
-                    [lobby_id, socket.id]
-                );
+            // Entferne Spieler aus allen Lobbies
+            for (const player of playerLobbies) {
+                try {
+                    await leaveLobbyInDB(player.lobby_id, player.id);
 
-                io.to(lobby_id).emit("playerLeft", { playerId: socket.id });
-
-                const [players] = await dbInstance.query(
-                    "SELECT COUNT(*) as count FROM players WHERE lobby_id = ?",
-                    [lobby_id]
-                );
-
-                if (players[0].count === 0) {
-                    await dbInstance.query(
-                        "UPDATE lobbies SET is_active = FALSE WHERE id = ?",
-                        [lobby_id]
-                    );
+                    // Benachrichtige andere Spieler
+                    socket.to(player.lobby_id).emit("playerLeft", {
+                        playerId: player.id
+                    });
+                } catch (error) {
+                    console.error(`Fehler beim Entfernen aus Lobby ${player.lobby_id}:`, error);
                 }
             }
         } catch (error) {
@@ -173,7 +141,6 @@ io.on("connection", (socket) => {
         }
     });
 });
-
 
 app.get("*", (_, res) => {
     res.sendFile(path.join(__dirname, "dist", "index.html"));

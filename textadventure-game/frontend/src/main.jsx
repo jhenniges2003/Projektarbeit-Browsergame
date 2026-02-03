@@ -9,7 +9,13 @@ function App() {
     const [inputJoinCode, setInputJoinCode] = useState("");
     const [currentLobby, setCurrentLobby] = useState(null);
     const [lobbyPlayers, setLobbyPlayers] = useState([]);
-    const [socket] = useState(() => io("http://localhost:3000"));
+    // const [socket] = useState(() => io("http://localhost:3000"));
+    const [socket] = useState(() => io("https://textadventure-game.thorben-dev.org", {
+        transports: ['websocket', 'polling'],
+        upgrade: true,
+        reconnection: true,
+        reconnectionDelay: 1000
+    }));
 
     const loadStories = async () => {
         try {
@@ -22,65 +28,53 @@ function App() {
         }
     };
 
-    const loadLobbyInfo = async (code) => {
-        try {
-            const res = await fetch(`/api/lobbies/${code}`);
-            if (res.ok) {
-                const lobbyData = await res.json();
-                setCurrentLobby(lobbyData);
-            }
-        } catch (error) {
-            console.error("Failed to load lobby info:", error);
-        }
-    };
-
     useEffect(() => {
         loadStories();
 
+        // Connection-Status überwachen
+        socket.on("connect", () => {
+            console.log("✅ Socket verbunden:", socket.id);
+        });
+
+        socket.on("disconnect", () => {
+            console.log("❌ Socket getrennt");
+        });
+
+        socket.on("connect_error", (error) => {
+            console.error("❌ Verbindungsfehler:", error.message);
+        });
+
         socket.on("lobbyCreated", (data) => {
-            console.log("Lobby erstellt:", data);
-            setJoinCode(data.joinCode);
-            loadLobbyInfo(data.joinCode);
-        });
-
-        socket.on("lobbyJoined", (data) => {
-            console.log("Lobby beigetreten:", data);
-            setCurrentLobby(data.lobby);
-            if (data.lobby.join_code) {
-                setJoinCode(data.lobby.join_code);
-            }
-        });
-
-        socket.on("playerJoined", (data) => {
-            console.log("Spieler beigetreten:", data);
-            setLobbyPlayers(prev => [...prev, data.playerId]);
-            if (joinCode) {
-                loadLobbyInfo(joinCode);
-            }
+            console.log("✅ Lobby erstellt:", data);
+            setJoinCode(data.lobby.join_code);
+            setCurrentLobby(data);
         });
 
         socket.on("playerLeft", (data) => {
-            console.log("Spieler verlassen:", data);
-            setLobbyPlayers(prev => prev.filter(id => id !== data.playerId));
-            if (joinCode) {
-                loadLobbyInfo(joinCode);
-            }
+            console.log("👋 Spieler verlassen:", data);
+            setCurrentLobby(null);
         });
 
         socket.on("error", (message) => {
+            console.error("❌ Socket Error:", message);
             alert(message);
         });
 
         return () => {
+            socket.off("connect");
+            socket.off("disconnect");
+            socket.off("connect_error");
             socket.off("lobbyCreated");
             socket.off("lobbyJoined");
             socket.off("playerJoined");
             socket.off("playerLeft");
             socket.off("error");
         };
-    }, [socket, joinCode]);
+    }, [socket]);
+
 
     const createLobby = () => {
+        console.log("Creating lobby...");
         socket.emit("createLobby", { player_name: "Meine Lobby" });
     };
 
@@ -90,11 +84,11 @@ function App() {
 
     const leaveLobby = () => {
         if (currentLobby) {
-            socket.emit("leaveLobby", currentLobby.id);
-            setCurrentLobby(null);
-            setJoinCode("");
-            setLobbyPlayers([]);
-            setInputJoinCode("");
+            console.log("Lobby ID", currentLobby.lobby.id);
+            console.log("Player ID", currentLobby.player.id);
+            console.log("Join Code", currentLobby.lobby.join_code);
+
+            socket.emit("leaveLobby", { lobbyId: currentLobby.lobby.id, playerId: currentLobby.player.id });
         }
     };
 
