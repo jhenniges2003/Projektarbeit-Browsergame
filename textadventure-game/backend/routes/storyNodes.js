@@ -3,32 +3,9 @@ import express from "express";
 
 const router = express.Router();
 
-/**
- * GET /api/decisions
- */
-router.get("/api/story_nodes", async (req, res) => {
-    try {
-        const [rows] = await dbInstance.query(
-            "SELECT * FROM story_nodes"
-        );
-
-        const story_nodes = rows.map(node => ({
-            id: node.id,
-            title: node.title,
-            content: node.content,
-            created_at: node.created_at,
-            updated_at: node.updated_at
-        }));
-
-        res.json(story_nodes);
-    } catch (error) {
-        console.error("Fehler beim Abrufen der Decisions:", error);
-        res.status(500).json({ error: "Serverfehler" });
-    }
-});
 
 /**
- * GET /api/decision/:id
+ * GET /api/story_nodes/:id
  */
 router.get("/api/story_nodes/:id", async (req, res) => {
     try {
@@ -49,13 +26,7 @@ router.get("/api/story_nodes/:id", async (req, res) => {
 
         const node = rows[0];
 
-        res.json({
-            id: node.id,
-            title: node.title,
-            content: node.content,
-            created_at: node.created_at,
-            updated_at: node.updated_at
-        });
+        res.json(node);
     } catch (error) {
         console.error("Fehler beim Abrufen der Decision:", error);
         res.status(500).json({ error: "Serverfehler" });

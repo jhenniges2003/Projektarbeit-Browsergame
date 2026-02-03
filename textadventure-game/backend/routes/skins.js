@@ -50,14 +50,7 @@ router.get("/api/skin/:id", async (req, res) => {
 
         const skin = rows[0];
 
-        res.json({
-            id: skin.id,
-            name: skin.name,
-            description: skin.description,
-            resource_path: skin.resource_path,
-            created_at: skin.created_at,
-            updated_at: skin.updated_at
-        });
+        res.json(skin);
     } catch (error) {
         console.error("Fehler beim Abrufen des Skins:", error);
         res.status(500).json({ error: "Serverfehler" });

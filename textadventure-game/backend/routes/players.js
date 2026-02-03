@@ -4,31 +4,6 @@ import express from "express";
 const router = express.Router();
 
 /**
- * GET /api/players
- */
-router.get("/api/players", async (req, res) => {
-    try {
-        const [rows] = await dbInstance.query(
-            "SELECT * FROM players"
-        );
-
-        const players = rows.map(player => ({
-            id: player.id,
-            name: player.name,
-            is_alive: player.is_alive,
-            lobby_id: player.lobby_id,
-            skin_id: player.skin_id,
-            created_at: player.created_at
-        }));
-
-        res.json(players);
-    } catch (error) {
-        console.error("Fehler beim Abrufen der Players:", error);
-        res.status(500).json({ error: "Serverfehler" });
-    }
-});
-
-/**
  * GET /api/player/:id
  */
 router.get("/api/player/:id", async (req, res) => {
@@ -50,14 +25,7 @@ router.get("/api/player/:id", async (req, res) => {
 
         const player = rows[0];
 
-        res.json({
-            id: player.id,
-            name: player.name,
-            is_alive: player.is_alive,
-            lobby_id: player.lobby_id,
-            skin_id: player.skin_id,
-            created_at: player.created_at
-        });
+        res.json(player);
     } catch (error) {
         console.error("Fehler beim Abrufen des Players:", error);
         res.status(500).json({ error: "Serverfehler" });
