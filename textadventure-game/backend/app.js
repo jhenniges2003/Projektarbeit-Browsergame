@@ -53,15 +53,22 @@ const maxPlayers = process.env.MAX_PLAYERS || 4;
 io.on("connection", (socket) => {
     console.log("Neuer Socket verbunden:", socket.id);
 
+    socket.on("joinRoom", (data) => {
+        console.log("Socket tritt Room bei:", data.lobbyId);
+        socket.join(data.lobbyId);
+    });
+
     socket.on("createLobby", async (data) => {
         try {
             console.log("Erstelle Lobby für:", data.player_name);
 
             const result = await createLobbyInDB(data.player_name, maxPlayers);
 
+            // Socket tritt automatisch dem Room bei
             socket.join(result.lobby.id);
             socket.emit("lobbyCreated", result);
             console.log("Lobby erstellt:", result.lobby.id, "Join-Code:", result.lobby.join_code);
+            console.log("Socket", socket.id, "ist jetzt im Room:", result.lobby.id);
 
         } catch (error) {
             console.error('Fehler beim Erstellen der Lobby:', error);
@@ -84,7 +91,8 @@ io.on("connection", (socket) => {
             // Benachrichtige alle anderen Spieler in der Lobby über den neuen Spieler
             socket.to(result.lobby.id).emit("playerJoined", {
                 playerCount: result.playerCount,
-                newPlayer: result.player
+                newPlayer: result.player,
+                players: result.players
             });
 
             console.log("Lobby beigetreten:", result.lobby.id);
@@ -113,7 +121,8 @@ io.on("connection", (socket) => {
             // Benachrichtige alle anderen Spieler in der Lobby über den verringerten Spielercount
             socket.to(data.lobbyId).emit("playerLeft", {
                 playerCount: result.lobby_players_count,
-                playerId: data.playerId
+                playerId: data.playerId,
+                players: result.players
             });
 
         } catch (error) {
@@ -142,7 +151,8 @@ io.on("connection", (socket) => {
                     // Benachrichtige andere Spieler mit aktualisierter Spieleranzahl
                     socket.to(player.lobby_id).emit("playerLeft", {
                         playerCount: result.lobby_players_count,
-                        playerId: player.id
+                        playerId: player.id,
+                        players: result.players
                     });
                 } catch (error) {
                     console.error(`Fehler beim Entfernen aus Lobby ${player.lobby_id}:`, error);

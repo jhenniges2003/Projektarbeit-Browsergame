@@ -40,9 +40,16 @@ export async function createLobbyInDB(playerName, maxPlayers) {
             [playerId]
         );
 
+        // 4. Alle Spieler in der Lobby laden (für Konsistenz)
+        const [playersRows] = await dbInstance.query(
+            "SELECT * FROM players WHERE lobby_id = ?",
+            [lobbyId]
+        );
+
         return {
             lobby: lobbyRows[0],
-            player: playerRows[0]
+            player: playerRows[0],
+            players: playersRows
         };
     } catch (error) {
         console.error("Fehler beim Erstellen der Lobby:", error);
@@ -146,7 +153,13 @@ export async function leaveLobbyInDB(lobbyId, playerId) {
         const playerCount = players[0].count;
         const lobbyEmpty = playerCount === 0;
 
-        // 3. Lobby deaktivieren, wenn leer
+        // 3. Alle verbleibenden Spieler laden
+        const [playersRows] = await dbInstance.query(
+            "SELECT * FROM players WHERE lobby_id = ?",
+            [lobbyId]
+        );
+
+        // 4. Lobby deaktivieren, wenn leer
         if (lobbyEmpty) {
             await dbInstance.query(
                 "UPDATE lobbies SET is_active = FALSE WHERE id = ?",
@@ -157,7 +170,8 @@ export async function leaveLobbyInDB(lobbyId, playerId) {
         return {
             message: "Lobby erfolgreich verlassen",
             lobby_players_count: playerCount,
-            lobby_empty: lobbyEmpty
+            lobby_empty: lobbyEmpty,
+            players: playersRows
         };
     } catch (error) {
         console.error("Fehler beim Verlassen der Lobby:", error);

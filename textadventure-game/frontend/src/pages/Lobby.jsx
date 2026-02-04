@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { io } from "socket.io-client";
 
 import Sidebar from "../components/Sidebar";
 import MenuCard from "../components/LobbyCard";
@@ -15,6 +16,51 @@ export default function Lobby() {
       const [showPlayerAlert, setShowPlayerAlert] = useState(false);
 
       const lobbyCode = location.state?.result?.lobby?.join_code ?? 'ABCDf';
+      const lobbyId = location.state?.result?.lobby?.id;
+
+      // State für Spielerliste
+      const [players, setPlayers] = useState(location.state?.result?.players || []);
+
+      // Socket-Verbindung
+      const [socket] = useState(() => io("https://textadventure-game.thorben-dev.org", {
+          transports: ['websocket', 'polling'],
+          upgrade: true,
+          reconnection: true,
+          reconnectionDelay: 1000
+      }));
+
+      // Socket-Listener für neue Spieler
+      useEffect(() => {
+          // Host muss dem Room beitreten, um Events zu empfangen
+          if (lobbyId && socket.connected) {
+              console.log("🔌 Trete Socket-Room bei:", lobbyId);
+              socket.emit("joinRoom", { lobbyId });
+          } else if (lobbyId) {
+              socket.once("connect", () => {
+                  console.log("🔌 Socket verbunden, trete Room bei:", lobbyId);
+                  socket.emit("joinRoom", { lobbyId });
+              });
+          }
+
+          socket.on("playerJoined", (data) => {
+              console.log("✅ Neuer Spieler beigetreten:", data);
+              if (data.players) {
+                  setPlayers(data.players);
+              }
+          });
+
+          socket.on("playerLeft", (data) => {
+              console.log("👋 Spieler hat die Lobby verlassen:", data);
+              if (data.players) {
+                  setPlayers(data.players);
+              }
+          });
+
+          return () => {
+              socket.off("playerJoined");
+              socket.off("playerLeft");
+          };
+      }, [socket, lobbyId]);
 
       // const players = [
       //       {
@@ -23,7 +69,7 @@ export default function Lobby() {
       //             image: selectedCharacter ? selectedCharacter.image : "",            },
       // ];
 
-      const players = location.state?.result?.players;
+      // const players = location.state?.result?.players;
 
       const characters = [
             {
