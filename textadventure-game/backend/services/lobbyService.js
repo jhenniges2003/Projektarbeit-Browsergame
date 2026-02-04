@@ -102,8 +102,8 @@ export async function joinLobbyInDB(playerName, joinCode) {
 
         return {
             lobby,
-            playerCount: countRows[0].count,
-            player: playerRows
+            playerCount: countRows[0].count + 1, // Anzahl nach dem Hinzufügen
+            player: playerRows[0]
         };
     } catch (error) {
         console.error("Fehler beim Beitreten der Lobby:", error);

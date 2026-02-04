@@ -80,6 +80,13 @@ io.on("connection", (socket) => {
 
             socket.join(result.lobby.id);
             socket.emit("lobbyJoined", result);
+
+            // Benachrichtige alle anderen Spieler in der Lobby über den neuen Spieler
+            socket.to(result.lobby.id).emit("playerJoined", {
+                playerCount: result.playerCount,
+                newPlayer: result.player
+            });
+
             console.log("Lobby beigetreten:", result.lobby.id);
 
         } catch (error) {
@@ -92,12 +99,22 @@ io.on("connection", (socket) => {
 
     socket.on("leaveLobby", async (data) => {
         try {
-            console.log("Spieler verlässt Lobby:", data.playerId);
+            console.log("Spieler verlässt Lobby - Lobby ID:", data.lobbyId, "Player ID:", data.playerId);
+
+            if (!data.playerId) {
+                throw new Error("Player ID fehlt");
+            }
 
             const result = await leaveLobbyInDB(data.lobbyId, data.playerId);
 
             socket.leave(data.lobbyId);
             socket.emit("playerLeft", result);
+
+            // Benachrichtige alle anderen Spieler in der Lobby über den verringerten Spielercount
+            socket.to(data.lobbyId).emit("playerLeft", {
+                playerCount: result.lobby_players_count,
+                playerId: data.playerId
+            });
 
         } catch (error) {
             console.error("Fehler beim Verlassen der Lobby:", error);
@@ -120,10 +137,11 @@ io.on("connection", (socket) => {
             // Entferne Spieler aus allen Lobbies
             for (const player of playerLobbies) {
                 try {
-                    await leaveLobbyInDB(player.lobby_id, player.id);
+                    const result = await leaveLobbyInDB(player.lobby_id, player.id);
 
-                    // Benachrichtige andere Spieler
+                    // Benachrichtige andere Spieler mit aktualisierter Spieleranzahl
                     socket.to(player.lobby_id).emit("playerLeft", {
+                        playerCount: result.lobby_players_count,
                         playerId: player.id
                     });
                 } catch (error) {
