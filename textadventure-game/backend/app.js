@@ -75,15 +75,12 @@ io.on("connection", (socket) => {
 
             const result = await joinLobbyInDB(data.player_name, data.input_join_code);
 
+            console.log("Lobby" , result);
+            console.log("Soieler:", result.player);
+
             socket.join(result.lobby.id);
             socket.emit("lobbyJoined", result);
             console.log("Lobby beigetreten:", result.lobby.id);
-
-            // Benachrichtige andere Spieler in der Lobby
-            socket.to(result.lobby.id).emit("playerJoined", {
-                playerId: result.player.id,
-                playerName: result.player.name
-            });
 
         } catch (error) {
             console.error("Fehler beim Beitreten der Lobby:", error);
@@ -100,10 +97,7 @@ io.on("connection", (socket) => {
             const result = await leaveLobbyInDB(data.lobbyId, data.playerId);
 
             socket.leave(data.lobbyId);
-            socket.emit("lobbyLeft", result);
-
-            // Benachrichtige andere Spieler
-            socket.to(data.lobbyId).emit("playerLeft", { playerId: data.playerId });
+            socket.emit("playerLeft", result);
 
         } catch (error) {
             console.error("Fehler beim Verlassen der Lobby:", error);

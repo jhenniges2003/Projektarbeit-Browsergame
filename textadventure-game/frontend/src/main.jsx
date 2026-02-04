@@ -50,6 +50,13 @@ function App() {
             setCurrentLobby(data);
         });
 
+        socket.on("lobbyJoined", (data) => {
+            console.log("✅ Lobby beigetreten:", data);
+            setJoinCode(data.lobby.join_code);
+            setCurrentLobby(data);
+            setLobbyPlayers(data.playerCount);
+        });
+
         socket.on("playerLeft", (data) => {
             console.log("👋 Spieler verlassen:", data);
             setCurrentLobby(null);
@@ -86,7 +93,6 @@ function App() {
         if (currentLobby) {
             console.log("Lobby ID", currentLobby.lobby.id);
             console.log("Player ID", currentLobby.player.id);
-            console.log("Join Code", currentLobby.lobby.join_code);
 
             socket.emit("leaveLobby", { lobbyId: currentLobby.lobby.id, playerId: currentLobby.player.id });
         }
@@ -120,7 +126,7 @@ function App() {
                     <div>
                         <h3>Aktuelle Lobby: {currentLobby.name}</h3>
                         <p><strong>Join-Code:</strong> {joinCode}</p>
-                        <p><strong>Spieleranzahl:</strong> {currentLobby.player_count || lobbyPlayers.length}</p>
+                        <p><strong>Spieleranzahl:</strong> { lobbyPlayers + 1 } </p>
                         <button onClick={leaveLobby}>Lobby verlassen</button>
                     </div>
                 )}

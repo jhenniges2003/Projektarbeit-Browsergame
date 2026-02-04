@@ -58,14 +58,19 @@ export async function createLobbyInDB(playerName, maxPlayers) {
  */
 export async function joinLobbyInDB(playerName, joinCode) {
     try {
+        console.log(joinCode);
+
         // 1. Lobby finden
         const [lobbyRows] = await dbInstance.query(
             "SELECT * FROM lobbies WHERE join_code = ? AND is_active = TRUE",
             [joinCode]
         );
 
+        console.log("Lobby Rows:", lobbyRows);
+        console.log("Länge", lobbyRows.length);
+
         if (lobbyRows.length === 0) {
-            throw new Error("Lobby nicht gefunden");
+            throw new Error("Lobby nicht gefunden2");
         }
 
         const lobby = lobbyRows[0];
@@ -76,14 +81,16 @@ export async function joinLobbyInDB(playerName, joinCode) {
             [lobby.id]
         );
 
+        console.log("Aktuelle Spieleranzahl:", countRows[0].count, "Max:", lobby.max_players);
+
         if (countRows[0].count >= lobby.max_players) {
             throw new Error("Lobby ist voll");
         }
 
-        // 3. Spieler zur Lobby hinzufügen
+        // 3. Spieler zur Lobby hinzufügen (mit is_alive = TRUE wie beim Host)
         const [result] = await dbInstance.query(
-            `INSERT INTO players (name, lobby_id)
-             VALUES (?, ?)`,
+            `INSERT INTO players (name, lobby_id, is_alive)
+             VALUES (?, ?, TRUE)`,
             [playerName, lobby.id]
         );
 
@@ -95,13 +102,15 @@ export async function joinLobbyInDB(playerName, joinCode) {
 
         return {
             lobby,
-            player: playerRows[0]
+            playerCount: countRows[0].count,
+            player: playerRows
         };
     } catch (error) {
         console.error("Fehler beim Beitreten der Lobby:", error);
         throw error;
     }
 }
+
 
 /**
  * Entfernt einen Spieler aus einer Lobby
@@ -120,6 +129,7 @@ export async function leaveLobbyInDB(lobbyId, playerId) {
         if (result.affectedRows === 0) {
             throw new Error("Spieler nicht in dieser Lobby gefunden");
         }
+
 
         // 2. Prüfen, ob Lobby leer ist
         const [players] = await dbInstance.query(
