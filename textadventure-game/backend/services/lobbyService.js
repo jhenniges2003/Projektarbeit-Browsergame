@@ -40,9 +40,12 @@ export async function createLobbyInDB(playerName, maxPlayers) {
             [playerId]
         );
 
-        // 4. Alle Spieler in der Lobby laden (für Konsistenz)
+        // 4. Alle Spieler in der Lobby laden (für Konsistenz) mit Skin-Informationen
         const [playersRows] = await dbInstance.query(
-            "SELECT * FROM players WHERE lobby_id = ?",
+            `SELECT p.*, s.name as skin_name, s.resource_path as skin_image 
+             FROM players p 
+             LEFT JOIN skins s ON p.skin_id = s.id 
+             WHERE p.lobby_id = ?`,
             [lobbyId]
         );
 
@@ -108,7 +111,10 @@ export async function joinLobbyInDB(playerName, joinCode) {
         );
 
         const [playersRows] = await dbInstance.query(
-            "SELECT * FROM players WHERE lobby_id = ?",
+            `SELECT p.*, s.name as skin_name, s.resource_path as skin_image 
+             FROM players p 
+             LEFT JOIN skins s ON p.skin_id = s.id 
+             WHERE p.lobby_id = ?`,
             [lobby.id]
         );
 
@@ -153,9 +159,12 @@ export async function leaveLobbyInDB(lobbyId, playerId) {
         const playerCount = players[0].count;
         const lobbyEmpty = playerCount === 0;
 
-        // 3. Alle verbleibenden Spieler laden
+        // 3. Alle verbleibenden Spieler laden mit Skin-Informationen
         const [playersRows] = await dbInstance.query(
-            "SELECT * FROM players WHERE lobby_id = ?",
+            `SELECT p.*, s.name as skin_name, s.resource_path as skin_image 
+             FROM players p 
+             LEFT JOIN skins s ON p.skin_id = s.id 
+             WHERE p.lobby_id = ?`,
             [lobbyId]
         );
 
@@ -195,7 +204,19 @@ export async function getLobbyById(lobbyId) {
             throw new Error("Lobby nicht gefunden");
         }
 
-        return rows[0];
+        // Lade auch die Spieler mit Skin-Informationen
+        const [playersRows] = await dbInstance.query(
+            `SELECT p.*, s.name as skin_name, s.resource_path as skin_image 
+             FROM players p 
+             LEFT JOIN skins s ON p.skin_id = s.id 
+             WHERE p.lobby_id = ?`,
+            [lobbyId]
+        );
+
+        return {
+            ...rows[0],
+            players: playersRows
+        };
     } catch (error) {
         console.error("Fehler beim Abrufen der Lobby:", error);
         throw error;
@@ -210,7 +231,10 @@ export async function getLobbyById(lobbyId) {
 export async function getPlayersInLobby(lobbyId) {
     try {
         const [rows] = await dbInstance.query(
-            "SELECT * FROM players WHERE lobby_id = ?",
+            `SELECT p.*, s.name as skin_name, s.resource_path as skin_image 
+             FROM players p 
+             LEFT JOIN skins s ON p.skin_id = s.id 
+             WHERE p.lobby_id = ?`,
             [lobbyId]
         );
 
@@ -220,3 +244,98 @@ export async function getPlayersInLobby(lobbyId) {
         throw error;
     }
 }
+
+/**
+ * Setzt den Skin für einen Spieler in einer Lobby
+ * @param {number} lobbyId - ID der Lobby
+ * @param {number} playerId - ID des Spielers
+ * @param {number} skinId - ID des Skins
+ * @returns {Promise<Object>} Aktualisierte Lobby mit allen Spielern
+ */
+export async function setPlayerSkin(lobbyId, playerId, skinId) {
+    try {
+        // Prüfe ob der Spieler in der Lobby ist
+        const [playerRows] = await dbInstance.query(
+            'SELECT * FROM players WHERE id = ? AND lobby_id = ?',
+            [playerId, lobbyId]
+        );
+
+        if (playerRows.length === 0) {
+            throw new Error('Spieler nicht in dieser Lobby gefunden');
+        }
+
+        // Prüfe ob der Skin existiert
+        const [skinRows] = await dbInstance.query(
+            'SELECT * FROM skins WHERE id = ?',
+            [skinId]
+        );
+
+        if (skinRows.length === 0) {
+            throw new Error('Skin nicht gefunden');
+        }
+
+        // Prüfe ob der Skin bereits von einem anderen Spieler in dieser Lobby verwendet wird
+        const [usedSkins] = await dbInstance.query(
+            'SELECT * FROM players WHERE lobby_id = ? AND skin_id = ? AND id != ?',
+            [lobbyId, skinId, playerId]
+        );
+
+        if (usedSkins.length > 0) {
+            throw new Error('Dieser Skin wird bereits von einem anderen Spieler verwendet');
+        }
+
+        // Setze den Skin für den Spieler
+        await dbInstance.query(
+            'UPDATE players SET skin_id = ? WHERE id = ?',
+            [skinId, playerId]
+        );
+
+        // Hole die aktualisierte Lobby mit allen Spielern
+        const lobby = await getLobbyById(lobbyId);
+
+        return lobby;
+    } catch (error) {
+        console.error("Fehler beim Setzen des Skins:", error);
+        throw error;
+    }
+}
+
+/**
+ * Entfernt den Skin von einem Spieler
+ * @param {number} lobbyId - ID der Lobby
+ * @param {number} playerId - ID des Spielers
+ * @returns {Promise<Object>} Aktualisierte Lobby mit allen Spielern
+ */
+export async function removePlayerSkin(lobbyId, playerId) {
+    try {
+        // Prüfe ob der Spieler in der Lobby ist
+        const [playerRows] = await dbInstance.query(
+            'SELECT * FROM players WHERE id = ? AND lobby_id = ?',
+            [playerId, lobbyId]
+        );
+
+        if (playerRows.length === 0) {
+            throw new Error('Spieler nicht in dieser Lobby gefunden');
+        }
+
+        // Entferne den Skin
+        await dbInstance.query(
+            'UPDATE players SET skin_id = NULL WHERE id = ?',
+            [playerId]
+        );
+
+        // Hole die aktualisierte Lobby mit allen Spielern
+        const lobby = await getLobbyById(lobbyId);
+
+        return lobby;
+    } catch (error) {
+        console.error("Fehler beim Entfernen des Skins:", error);
+        throw error;
+    }
+}
+
+
+
+
+
+

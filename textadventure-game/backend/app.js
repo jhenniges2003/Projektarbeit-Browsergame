@@ -6,7 +6,9 @@ import dbInstance from "./db.js";
 import {
     createLobbyInDB,
     joinLobbyInDB,
-    leaveLobbyInDB
+    leaveLobbyInDB,
+    setPlayerSkin,
+    removePlayerSkin
 } from "./services/lobbyService.js";
 
 const app = express();
@@ -129,6 +131,55 @@ io.on("connection", (socket) => {
             console.error("Fehler beim Verlassen der Lobby:", error);
             socket.emit("error", {
                 message: error.message || "Lobby konnte nicht verlassen werden"
+            });
+        }
+    });
+
+    socket.on("selectSkin", async (data) => {
+        try {
+            console.log("Spieler wählt Skin - Lobby ID:", data.lobbyId, "Player ID:", data.playerId, "Skin ID:", data.skinId);
+
+            if (!data.lobbyId || !data.playerId || !data.skinId) {
+                throw new Error("Lobby ID, Player ID oder Skin ID fehlt");
+            }
+
+            const lobby = await setPlayerSkin(data.lobbyId, data.playerId, data.skinId);
+
+            // Benachrichtige alle Spieler in der Lobby über die Skin-Auswahl
+            io.to(data.lobbyId).emit("skinSelected", {
+                playerId: data.playerId,
+                skinId: data.skinId,
+                players: lobby.players
+            });
+
+        } catch (error) {
+            console.error("Fehler beim Auswählen des Skins:", error);
+            socket.emit("error", {
+                message: error.message || "Skin konnte nicht ausgewählt werden"
+            });
+        }
+    });
+
+    socket.on("removeSkin", async (data) => {
+        try {
+            console.log("Spieler entfernt Skin - Lobby ID:", data.lobbyId, "Player ID:", data.playerId);
+
+            if (!data.lobbyId || !data.playerId) {
+                throw new Error("Lobby ID oder Player ID fehlt");
+            }
+
+            const lobby = await removePlayerSkin(data.lobbyId, data.playerId);
+
+            // Benachrichtige alle Spieler in der Lobby über die Skin-Entfernung
+            io.to(data.lobbyId).emit("skinRemoved", {
+                playerId: data.playerId,
+                players: lobby.players
+            });
+
+        } catch (error) {
+            console.error("Fehler beim Entfernen des Skins:", error);
+            socket.emit("error", {
+                message: error.message || "Skin konnte nicht entfernt werden"
             });
         }
     });

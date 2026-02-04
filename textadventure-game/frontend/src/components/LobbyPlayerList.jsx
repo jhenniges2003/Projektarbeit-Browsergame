@@ -14,7 +14,7 @@ export default function LobbyPlayerList({ players }) {
    return (
     <ul className="list-group">
       {players.map((player, index) => {
-        const hasCharacter = Boolean(player.image);
+        const hasCharacter = Boolean(player.skin_id && player.skin_image);
 
         return (
           <li
@@ -46,8 +46,8 @@ export default function LobbyPlayerList({ players }) {
             >
               {hasCharacter ? (
                 <img
-                  src={player.image}
-                  alt={player.characterName || "Character"}
+                  src={player.skin_image}
+                  alt={player.skin_name || "Character"}
                   style={{
                     width: "100%",
                     height: "100%",
@@ -66,7 +66,7 @@ export default function LobbyPlayerList({ players }) {
             <div>
               <div className="fw-bold">{player.name}</div>
               <div className="text-muted small">
-                {player.characterName}
+                {player.skin_name || "Kein Charakter"}
               </div>
             </div>
           </li>
