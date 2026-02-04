@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Alert from "../components/Alert";
 import JoinLobbyDialog from "../components/JoinLobbyDialog";
 import { useNavigate } from "react-router-dom";
+import { io } from "socket.io-client";
 import colors from "../styles/colors";
 
 export default function Menu() {
     const navigate = useNavigate();
+
+    const [isCreating, setIsCreating] = useState(false);
 
     const [name, setName] = useState("")
     const [nameTouched, setNameTouched] = useState(false)
@@ -14,8 +17,16 @@ export default function Menu() {
     const [notifMessage, setNotifMessage] = useState("")
 
     const [joinOpen, setJoinOpen] = useState(false)
+    const [failedJoin, setFailedJoin] = useState(false);
 
     const nameMissing = nameTouched && !name.trim()
+
+    const [socket] = useState(() => io("https://textadventure-game.thorben-dev.org", {
+        transports: ['websocket', 'polling'],
+        upgrade: true,
+        reconnection: true,
+        reconnectionDelay: 1000
+    }));
 
     const showError = (message) => {
         setNotifMessage(message)
@@ -38,9 +49,55 @@ export default function Menu() {
 
     const handleCreateLobby = () => {
         if (!requireNameOrNotify()) return;
-        navigate("/lobby", { state: {playerName: name.trim() } });
-        // TODO: Lobby erstellen 
+        if (isCreating) return;
+
+        console.log("Creating lobby...");
+        setIsCreating(true);
+
+        // Warte bis Socket verbunden ist
+        if (!socket.connected) {
+            socket.connect();
+            socket.once('connect', () => {
+                console.log("Socket verbunden:", socket.id);
+                socket.emit("createLobby", { player_name: name.trim() });
+            });
+        } else {
+            console.log("Socket bereits verbunden:", socket.id);
+            socket.emit("createLobby", { player_name: name.trim() });
+        }
+
+        // Warte auf Antwort vom Server
+        socket.once("lobbyCreated", (result) => {
+            console.log("Lobby erstellt:", result);
+            navigate("/lobby", { state: { playerName: name.trim(), result: result } });
+        });
+
+        socket.once("error", (error) => {
+            console.error("Fehler:", error);
+            setIsCreating(false);
+            showError(error.message || "Lobby konnte nicht erstellt werden");
+        });
     };
+
+    useEffect(() => {
+        if (failedJoin) {
+            showError("Lobby konnte nicht betreten werden. Bitte überprüfe den Code und versuche es erneut.");
+        }
+
+        socket.on('connect', () => {
+            console.log('Socket verbunden:', socket.id);
+        });
+
+        socket.on('disconnect', () => {
+            console.log('Socket getrennt');
+        });
+
+        return () => {
+            socket.off('connect');
+            socket.off('disconnect');
+        };
+    }, [socket, failedJoin]);
+
 
     return (
         <>
@@ -75,7 +132,7 @@ export default function Menu() {
                             LOBBY BEITRETEN
                         </button>
 
-                        <JoinLobbyDialog open={joinOpen} close={() => setJoinOpen(false)} playerName={name.trim()}/>
+                        <JoinLobbyDialog open={joinOpen} close={() => setJoinOpen(false)} playerName={name.trim()} failedJoin={failedJoin} />
 
                         <button type="button" className="btn btn-outline-primary" onClick={handleCreateLobby} style={{color: colors.primary, borderColor: colors.primary}}>
                             LOBBY ERSTELLEN
@@ -93,6 +150,7 @@ export default function Menu() {
                 title="Meldung"
                 message={notifMessage}
                 severity="danger"
+
             />
         </>
     )

@@ -7,19 +7,19 @@ export default function App() {
     const [stories, setStories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [joinCode, setJoinCode] = useState("");
-    const [inputJoinCode, setInputJoinCode] = useState("");
+
     const [currentLobby, setCurrentLobby] = useState(null);
     const [lobbyPlayers, setLobbyPlayers] = useState([]);
-    const [isJoining, setIsJoining] = useState(false);
-    const [isCreating, setIsCreating] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
-    const [socket] = useState(() => io("http://localhost:3000"));
-    /* const [socket] = useState(() => io("https://textadventure-game.thorben-dev.org", {
+
+
+    // const [errorMessage, setErrorMessage] = useState("");
+    // const [socket] = useState(() => io("http://localhost:3000"));
+    const [socket] = useState(() => io("https://textadventure-game.thorben-dev.org", {
         transports: ['websocket', 'polling'],
         upgrade: true,
         reconnection: true,
         reconnectionDelay: 1000
-    })); */
+    }));
 
     const loadStories = async () => {
         try {
@@ -111,22 +111,6 @@ export default function App() {
             socket.off("error");
         };
     }, [socket]);
-
-     const createLobby = () => {
-        if (isCreating) return; // Verhindere Mehrfachanfragen
-        console.log("Creating lobby...");
-        setIsCreating(true);
-        setErrorMessage("");
-        socket.emit("createLobby", { player_name: "Meine Lobby" });
-    };
-
-    const joinLobby = () => {
-        if (isJoining || !inputJoinCode.trim()) return; // Verhindere Mehrfachanfragen
-        console.log("Joining lobby...");
-        setIsJoining(true);
-        setErrorMessage("");
-        socket.emit("joinLobby", { player_name: "Spieler Name", input_join_code: inputJoinCode });
-    };
 
     const leaveLobby = () => {
         if (currentLobby) {

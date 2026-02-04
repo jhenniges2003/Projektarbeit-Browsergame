@@ -70,7 +70,7 @@ export async function joinLobbyInDB(playerName, joinCode) {
         console.log("Länge", lobbyRows.length);
 
         if (lobbyRows.length === 0) {
-            throw new Error("Lobby nicht gefunden2");
+            throw new Error("Lobby nicht gefunden");
         }
 
         const lobby = lobbyRows[0];
@@ -100,10 +100,16 @@ export async function joinLobbyInDB(playerName, joinCode) {
             [result.insertId]
         );
 
+        const [playersRows] = await dbInstance.query(
+            "SELECT * FROM players WHERE lobby_id = ?",
+            [lobby.id]
+        );
+
         return {
             lobby,
             playerCount: countRows[0].count + 1, // Anzahl nach dem Hinzufügen
-            player: playerRows[0]
+            player: playerRows[0],
+            players: playersRows
         };
     } catch (error) {
         console.error("Fehler beim Beitreten der Lobby:", error);

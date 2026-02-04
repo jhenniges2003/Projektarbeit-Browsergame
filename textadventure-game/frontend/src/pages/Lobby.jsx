@@ -14,14 +14,16 @@ export default function Lobby() {
       const [selectedCharacter, setSelectedCharacter] = useState(null);
       const [showPlayerAlert, setShowPlayerAlert] = useState(false);
 
-      const lobbyCode = "ABCD";
+      const lobbyCode = location.state?.result?.lobby?.join_code ?? 'ABCDf';
 
-      const players = [
-            {
-                  name: playerName,
-                  characterName: selectedCharacter ? selectedCharacter.name : "",
-                  image: selectedCharacter ? selectedCharacter.image : "",            },
-      ];
+      // const players = [
+      //       {
+      //             name: playerName,
+      //             characterName: selectedCharacter ? selectedCharacter.name : "",
+      //             image: selectedCharacter ? selectedCharacter.image : "",            },
+      // ];
+
+      const players = location.state?.result?.players;
 
       const characters = [
             {

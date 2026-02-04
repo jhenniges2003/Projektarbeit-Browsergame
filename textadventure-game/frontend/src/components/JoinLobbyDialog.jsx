@@ -1,17 +1,26 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { io } from "socket.io-client";
 
-export default function JoinLobbyDialog({open, close, playerName}){
+export default function JoinLobbyDialog({open, close, playerName, failedJoin = false}){
     const navigate = useNavigate();
     const [lobbyCode, setLobbyCode] = useState("");
     const inputRef = useRef(null);
+    const [socket] = useState(() => io("https://textadventure-game.thorben-dev.org", {
+        transports: ['websocket', 'polling'],
+        upgrade: true,
+        reconnection: true,
+        reconnectionDelay: 1000
+    }));
+
+    const [isJoining, setIsJoining] = useState(false);
 
     useEffect(() => {
         if (open) {
             setLobbyCode("");
             setTimeout(() => inputRef.current?.focus(), 0);
         }
-    }, [open]);
+    }, [socket, open]);
 
     if (!open) return null;
 
@@ -20,7 +29,21 @@ export default function JoinLobbyDialog({open, close, playerName}){
     };
 
     const handleJoin = () => {
-        navigate("/lobby", { state: { playerName } });
+        if (isJoining || !lobbyCode.trim()) {
+            failedJoin = true;
+        } // Verhindere Mehrfachanfragen
+        console.log("Joining lobby...");
+        setIsJoining(true);
+
+        failedJoin = false;
+
+        socket.emit("joinLobby", { player_name: playerName, input_join_code: lobbyCode });
+        socket.on("lobbyJoined", (data) => {
+            console.log("✅ Lobby beigetreten:", data);
+            navigate("/lobby", { state: { playerName, result: data} });
+        });
+
+
         close?.()
     }
 
