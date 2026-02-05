@@ -85,7 +85,7 @@ io.on("connection", (socket) => {
             const result = await joinLobbyInDB(data.player_name, data.input_join_code);
 
             console.log("Lobby" , result);
-            console.log("Soieler:", result.player);
+            console.log("Spieler:", result.player);
 
             socket.join(result.lobby.id);
             socket.emit("lobbyJoined", result);
