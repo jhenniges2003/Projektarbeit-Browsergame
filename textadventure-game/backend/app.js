@@ -31,6 +31,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static(path.join(__dirname, "dist")));
 app.use("/assets", express.static(path.join(__dirname, "dist", "assets")));
+app.use("/skins", express.static(path.join(__dirname, "dist", "assets", "skins")));
 
 // Routes einbinden
 import decisionsRouter from "./routes/decisions.js";

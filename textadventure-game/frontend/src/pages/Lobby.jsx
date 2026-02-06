@@ -12,7 +12,6 @@ export default function Lobby() {
       const location = useLocation();
 
       const playerName = location.state?.playerName ?? 'Spieler';
-      const [selectedCharacter, setSelectedCharacter] = useState(null);
       const [showPlayerAlert, setShowPlayerAlert] = useState(false);
 
       const lobbyCode = location.state?.result?.lobby?.join_code ?? 'ABCDf';
@@ -111,39 +110,25 @@ export default function Lobby() {
           }
       }, [players, playerName]);
 
-      // const players = [
-      //       {
-      //             name: playerName,
-      //             characterName: selectedCharacter ? selectedCharacter.name : "",
-      //             image: selectedCharacter ? selectedCharacter.image : "",            },
-      // ];
+      // Ermittle verwendete Skin IDs
+      const usedSkinIds = players.map(p => p.skin_id).filter(id => id !== null);
 
-      // const players = location.state?.result?.players;
+      // Enriche Spielerdaten mit Charakterinformationen aus der Datenbank
+      const enrichedPlayers = players.map(player => {
+            if (player.skin_id) {
+                  const skin = availableSkins.find(s => s.id === player.skin_id);
+                console.log("skin image:", skin.resource_path);
 
-      // Mapping von Skin-IDs zu Charakterinformationen und lokalen Bildern
-      // Da die Datenbank nicht geändert werden kann, mappen wir hier im Frontend
-      const skinMapping = {
-            1: { // Gelehrter
-                  name: "Gurkelbert",
-                  personality: "neugierig, rational",
-                  image: new URL("../assets/skins/Charakter_Gelehrter_Gurkelbert.png", import.meta.url).href
-            },
-            2: { // Koch
-                  name: "Zottelrudi",
-                  personality: "chaotisch, enthusiastisch",
-                  image: new URL("../assets/skins/Charakter_Koch_Zottelrudi.png", import.meta.url).href
-            },
-            3: { // Philosoph
-                  name: "Glimmerbart",
-                  personality: "ruhig, nachdenklich",
-                  image: new URL("../assets/skins/Charakter_Philosoph_Glimmerbart.png", import.meta.url).href
-            },
-            4: { // Optimist
-                  name: "Trudelhut",
-                  personality: "freundlich, fröhlich",
-                  image: new URL("../assets/skins/Charakter_Optimist_Trudelhut.png", import.meta.url).href
+                  if (skin) {
+                        return {
+                              ...player,
+                              skin_name: skin.character_name,
+                              skin_image: skin.resource_path
+                        };
+                  }
             }
-      };
+            return player;
+      });
 
       const storySlides = [
             {
@@ -201,21 +186,6 @@ export default function Lobby() {
             }
       };
 
-      // Ermittle verwendete Skin IDs
-      const usedSkinIds = players.map(p => p.skin_id).filter(id => id !== null);
-
-      // Enriche Spielerdaten mit gemappten Charakterinformationen
-      const enrichedPlayers = players.map(player => {
-            if (player.skin_id && skinMapping[player.skin_id]) {
-                  return {
-                        ...player,
-                        skin_name: skinMapping[player.skin_id].name,
-                        skin_image: skinMapping[player.skin_id].image
-                  };
-            }
-            return player;
-      });
-
       return (
             <div
                   className="container-fluid py-3"
@@ -268,22 +238,15 @@ export default function Lobby() {
                                                 const isSelectedByMe = selectedSkinId === skin.id;
                                                 const playerWithSkin = players.find(p => p.skin_id === skin.id);
 
-                                                // Hole gemappte Charakterinformationen
-                                                const mappedSkin = skinMapping[skin.id] || {
-                                                      name: skin.name,
-                                                      personality: skin.personality,
-                                                      image: ""
-                                                };
-
-                                                // Erstelle Charakter-Objekt für LobbyCard
+                                                // Erstelle Charakter-Objekt für LobbyCard aus Datenbank-Daten
                                                 const characterInfo = {
                                                       id: skin.id,
-                                                      name: mappedSkin.name,
-                                                      text: `Wesen: ${mappedSkin.personality}`,
+                                                      name: skin.name,
+                                                      text: `Wesen: ${skin.personality}`,
                                                       subtext: isUsed
                                                             ? (isSelectedByMe ? "✓ Von dir gewählt" : `Gewählt von ${playerWithSkin?.name}`)
                                                             : skin.description || "Verfügbar",
-                                                      image: mappedSkin.image
+                                                      image: skin.resource_path
                                                 };
 
                                                 return (

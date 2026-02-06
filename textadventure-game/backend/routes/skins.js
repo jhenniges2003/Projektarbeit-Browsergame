@@ -15,6 +15,7 @@ router.get("/api/skins", async (req, res) => {
         const skins = rows.map(skin => ({
             id: skin.id,
             name: skin.name,
+            personality: skin.personality,
             description: skin.description,
             resource_path: skin.resource_path,
             created_at: skin.created_at,
