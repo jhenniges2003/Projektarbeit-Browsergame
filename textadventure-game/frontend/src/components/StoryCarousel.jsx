@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
+import backgroundImage from "../assets/images/background.png";
 
 export default function StoryCarousel({
     slides = [],
@@ -33,7 +34,7 @@ export default function StoryCarousel({
             <div 
                 className="w-100 h-100"
                 style={{
-                    backgroundImage: `url(${active.backgroundImage})`,
+                    backgroundImage: `url(${backgroundImage})`,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
                     filter: "none",

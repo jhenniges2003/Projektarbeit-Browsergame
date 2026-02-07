@@ -24,6 +24,8 @@ export default function Lobby() {
       const [availableSkins, setAvailableSkins] = useState([]);
       const [selectedSkinId, setSelectedSkinId] = useState(null);
 
+      const [stories, setStories] = useState([]);
+
       // Socket-Verbindung
       const [socket] = useState(() => io("https://textadventure-game.thorben-dev.org", {
           transports: ['websocket', 'polling'],
@@ -99,7 +101,20 @@ export default function Lobby() {
               }
           };
 
+          const fetchStories = async () => {
+                try {
+                      const response = await fetch("/api/stories");
+                      const data = await response.json();
+                      setStories(data);
+                      console.log("Stories:", data);
+                } catch (error) {
+                      console.error("Fehler beim Laden der Stories:", error);
+                }
+          };
+
           fetchSkins();
+          fetchStories();
+
       }, []);
 
       // Setze initial ausgewählten Skin vom aktuellen Spieler
@@ -218,7 +233,7 @@ export default function Lobby() {
                         <main className="bg-white border rounded shadow-sm p-3 d-flex flex-column flex-grow-1"
                               style={{ minWidth: 0, minHeight: 0 }}>
                               <StoryCarousel 
-                                    slides={storySlides}
+                                    slides={stories}
                                     height={380}
                                     disabled={!selectedSkinId}
                                     onStart={handleStart}
