@@ -82,6 +82,10 @@ export default function Lobby() {
 
           socket.on("gameStarted", (data) => {
               console.log("🎮 Spiel wurde gestartet:", data);
+
+              // Finde den aktuellen Spieler
+              const currentPlayer = data.players.find(p => p.name === playerName);
+
               // Navigiere zur Game-Seite mit allen benötigten Daten
               navigate("/game", {
                   state: {
@@ -89,7 +93,8 @@ export default function Lobby() {
                       currentNode: data.currentNode,
                       decisions: data.decisions,
                       players: data.players,
-                      lobbyId: lobbyId
+                      lobbyId: lobbyId,
+                      currentPlayerId: currentPlayer?.id
                   }
               });
           });

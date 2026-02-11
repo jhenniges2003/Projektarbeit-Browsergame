@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 
@@ -16,11 +16,22 @@ export default function Game() {
     const lobbyId = location.state?.lobbyId;
     const [currentNode, setCurrentNode] = useState(location.state?.currentNode);
     const [decisions, setDecisions] = useState(location.state?.decisions || []);
+    const currentPlayerId = location.state?.currentPlayerId; // ID des aktuellen Spielers
+
+    // useRef für decisions, um Stale Closure in Socket-Listenern zu vermeiden
+    const decisionsRef = useRef(decisions);
+    useEffect(() => {
+        decisionsRef.current = decisions;
+    }, [decisions]);
 
     const players = useMemo(() => {
         const fromState = location.state?.players;
 
-        if (Array.isArray(fromState) && fromState.length) return fromState;
+        if (Array.isArray(fromState) && fromState.length) {
+            console.log("🎮 Spieler geladen:", fromState);
+            console.log("🎨 Skin-Daten:", fromState.map(p => ({ id: p.id, name: p.name, skin_image: p.skin_image })));
+            return fromState;
+        }
 
         return [
             { name: "Benutzer 1", characterName: "Magier", image: "https://placecats.com/300/300" },
@@ -42,13 +53,15 @@ export default function Game() {
 
     const [storyText, setStoryText] = useState(currentNode?.content || "");
 
-    const [votes, setVotes] = useState({});
+    const [votes, setVotes] = useState({}); // playerId -> decisionIndex
+    const [votedPlayerIds, setVotedPlayerIds] = useState([]); // Array der Spieler-IDs, die bereits abgestimmt haben
+    const [hasVoted, setHasVoted] = useState(false); // Hat der aktuelle Spieler schon abgestimmt?
     const [roundLocked, setRoundLocked] = useState(false);
 
     const [showDice, setShowDice] = useState(false);
     const [timerKey, setTimerKey] = useState(0);
 
-    const everyoneVoted = Object.keys(votes).length >= playerCount;
+    const everyoneVoted = votedPlayerIds.length >= playerCount;
 
     // Aktualisiere Story-Text wenn sich der Node ändert
     useEffect(() => {
@@ -67,18 +80,61 @@ export default function Game() {
             });
         }
 
+        // Socket-Listener für Voting-Updates
+        socket.on("voteUpdate", (data) => {
+            console.log("📊 Vote-Update empfangen:", data);
+            setVotes(data.votes);
+            setVotedPlayerIds(data.votedPlayerIds);
+        });
+
+        socket.on("votingComplete", async (data) => {
+            console.log("✅ Abstimmung abgeschlossen:", data);
+            setRoundLocked(true);
+
+            // Verwende decisionsRef.current für aktuellen Wert
+            const currentDecisions = decisionsRef.current;
+
+            // Zeige die gewählte Decision
+            if (currentDecisions[data.winnerIndex]) {
+                const selectedDecision = currentDecisions[data.winnerIndex];
+                setStoryText(`Entscheidung: ${selectedDecision.content}`);
+
+                setTimeout(async () => {
+                    // Lade den nächsten Node
+                    await loadNextNode(selectedDecision.id);
+                    resetForNextScene();
+                }, 2000);
+            }
+        });
+
+        socket.on("error", (data) => {
+            console.error("❌ Socket Error:", data);
+            alert(data.message || "Ein Fehler ist aufgetreten");
+        });
+
         return () => {
+            socket.off("voteUpdate");
+            socket.off("votingComplete");
+            socket.off("error");
             socket.disconnect();
         };
-    }, [socket, lobbyId]);
+    }, [socket, lobbyId]); // decisions entfernt aus Dependencies!
 
     const voteAvatars = useMemo(() => {
+        console.log("🗳️ Berechne voteAvatars mit votes:", votes);
+        console.log("👥 Verfügbare Spieler:", players.map(p => ({ id: p.id, skin_image: p.skin_image })));
+
         const buckets = Array(decisions.length).fill(null).map(() => []);
-        Object.entries(votes).forEach(([playerIndexStr, optionIndex]) => {
-            const playerIndex = Number(playerIndexStr);
-            const image = players[playerIndex]?.skin_image;
-            if (image && buckets[optionIndex]) buckets[optionIndex].push(image);
+        Object.entries(votes).forEach(([playerId, decisionIndex]) => {
+            const player = players.find(p => p.id === Number(playerId));
+            console.log(`🔍 Suche Spieler mit ID ${playerId}:`, player);
+            const image = player?.skin_image;
+            console.log(`🖼️ Skin-Image für Spieler ${playerId}:`, image);
+            if (image && buckets[decisionIndex]) {
+                buckets[decisionIndex].push(image);
+            }
         });
+        console.log("📦 Finale voteAvatars buckets:", buckets);
         return buckets;
     }, [votes, players, decisions]);
 
@@ -124,9 +180,16 @@ export default function Game() {
 
     const resetForNextScene = () => {
         setVotes({});
+        setVotedPlayerIds([]);
+        setHasVoted(false);
         setRoundLocked(false);
         setShowDice(false);
         setTimerKey((key) => key + 1);
+
+        // Sende Reset-Event an Server
+        if (lobbyId) {
+            socket.emit("resetVoting", { lobbyId });
+        }
     }
 
     const finishRoundWithWinner = (winnerIndex) => {
@@ -147,32 +210,21 @@ export default function Game() {
     };
 
     const handleLocalVote = (_, optionIndex) => {
-        if (roundLocked || showDice) return;
+        if (roundLocked || showDice || hasVoted) return;
 
-        setVotes((previous) => {
-            if(previous[0] !== undefined) return previous;
-            return {...previous, 0: optionIndex};
+        console.log(`Spieler ${currentPlayerId} stimmt für Option ${optionIndex}`);
+
+        // Markiere als abgestimmt
+        setHasVoted(true);
+
+        // Sende Vote an Server
+        socket.emit("playerVote", {
+            lobbyId: lobbyId,
+            playerId: currentPlayerId,
+            decisionIndex: optionIndex,
+            playerCount: playerCount
         });
-
-        setTimeout(() => {
-            setVotes((previous) => {
-                const next = {...previous};
-                for (let i = 1; i < playerCount; i++) {
-                    if (next[i] === undefined) next[i] = Math.floor(Math.random() * decisions.length);
-                }
-                return next;
-            });
-        }, 450); 
     };
-
-    useEffect(() => {
-        if(roundLocked) return;
-        if(showDice) return;
-        if(!everyoneVoted) return;
-
-        const winner = computeWinnerIndex(votes);
-        finishRoundWithWinner(winner);
-    }, [everyoneVoted, votes]);
 
     const handleTimerFinish = () => {
         if (roundLocked) return;
@@ -279,8 +331,13 @@ export default function Game() {
                             options={decisions.map(d => d.content)}
                             onSelect={handleLocalVote}
                             voteAvatars={voteAvatars}
-                            disabled={roundLocked || showDice }
+                            disabled={roundLocked || showDice || hasVoted}
                         />
+                        {hasVoted && !roundLocked && (
+                            <div className="text-center mt-3" style={{ color: "white" }}>
+                                ✓ Deine Stimme wurde abgegeben. Warten auf andere Spieler...
+                            </div>
+                        )}
                     </section>
                 </main>
             </div>

@@ -52,6 +52,10 @@ app.use(storyNodesRouter);
 
 const maxPlayers = process.env.MAX_PLAYERS || 4;
 
+// Voting-System für Decisions - MUSS AUSSERHALB des Connection-Handlers sein!
+// lobbyId -> { votes: Map(playerId -> decisionIndex), playerCount: number }
+const lobbyVotes = new Map();
+
 // Socket.io Lobby-Logik
 io.on("connection", (socket) => {
     console.log("Neuer Socket verbunden:", socket.id);
@@ -247,6 +251,105 @@ io.on("connection", (socket) => {
             socket.emit("error", {
                 message: error.message || "Spiel konnte nicht gestartet werden"
             });
+        }
+    });
+
+
+    socket.on("playerVote", async (data) => {
+        try {
+            console.log("🗳️ Spieler-Vote empfangen:", data);
+
+            const { lobbyId, playerId, decisionIndex, playerCount } = data;
+
+            if (!lobbyId || playerId === undefined || decisionIndex === undefined) {
+                throw new Error("Unvollständige Vote-Daten");
+            }
+
+            // Initialisiere Voting-Daten für diese Lobby falls nicht vorhanden
+            if (!lobbyVotes.has(lobbyId)) {
+                console.log(`📋 Initialisiere neue Voting-Daten für Lobby ${lobbyId}`);
+                lobbyVotes.set(lobbyId, {
+                    votes: new Map(),
+                    playerCount: playerCount || 1
+                });
+            }
+
+            const lobbyVoteData = lobbyVotes.get(lobbyId);
+            console.log(`📊 Vor dem Vote - Lobby ${lobbyId}:`, {
+                aktuelleSpielerVotes: Array.from(lobbyVoteData.votes.entries()),
+                neuerVote: { playerId, decisionIndex }
+            });
+
+            lobbyVoteData.votes.set(playerId, decisionIndex);
+
+            console.log(`✅ Nach dem Vote - Lobby ${lobbyId}:`, {
+                alleSpielerVotes: Array.from(lobbyVoteData.votes.entries()),
+                anzahlVotes: lobbyVoteData.votes.size,
+                benötigteVotes: lobbyVoteData.playerCount
+            });
+
+            // Konvertiere Map zu Objekt für Übertragung
+            const votesObject = Object.fromEntries(lobbyVoteData.votes);
+            const votedPlayerIds = Array.from(lobbyVoteData.votes.keys());
+
+            console.log(`📢 Lobby ${lobbyId}: ${votedPlayerIds.length}/${lobbyVoteData.playerCount} Spieler haben abgestimmt`);
+            console.log(`👥 Abgestimmte Spieler-IDs:`, votedPlayerIds);
+
+            // Benachrichtige alle Spieler über den neuen Vote-Status
+            io.to(lobbyId).emit("voteUpdate", {
+                votes: votesObject,
+                votedPlayerIds: votedPlayerIds,
+                totalPlayers: lobbyVoteData.playerCount
+            });
+
+            // Prüfe ob alle abgestimmt haben
+            if (lobbyVoteData.votes.size >= lobbyVoteData.playerCount) {
+                console.log(`Alle Spieler in Lobby ${lobbyId} haben abgestimmt`);
+
+                // Berechne die Mehrheitsentscheidung
+                const voteCounts = new Map();
+                lobbyVoteData.votes.forEach((decisionIdx) => {
+                    voteCounts.set(decisionIdx, (voteCounts.get(decisionIdx) || 0) + 1);
+                });
+
+                let winnerIndex = 0;
+                let maxVotes = 0;
+                voteCounts.forEach((count, index) => {
+                    if (count > maxVotes) {
+                        maxVotes = count;
+                        winnerIndex = index;
+                    }
+                });
+
+                console.log(`Gewinner-Decision-Index: ${winnerIndex} mit ${maxVotes} Stimmen`);
+
+                // Benachrichtige alle Spieler über das Abstimmungsergebnis
+                io.to(lobbyId).emit("votingComplete", {
+                    winnerIndex: winnerIndex,
+                    votes: votesObject
+                });
+
+                // Lösche die Votes für diese Lobby
+                lobbyVotes.delete(lobbyId);
+            }
+
+        } catch (error) {
+            console.error("Fehler beim Verarbeiten des Votes:", error);
+            socket.emit("error", {
+                message: error.message || "Vote konnte nicht verarbeitet werden"
+            });
+        }
+    });
+
+    socket.on("resetVoting", (data) => {
+        try {
+            const { lobbyId } = data;
+            if (lobbyId && lobbyVotes.has(lobbyId)) {
+                lobbyVotes.delete(lobbyId);
+                console.log(`Voting für Lobby ${lobbyId} zurückgesetzt`);
+            }
+        } catch (error) {
+            console.error("Fehler beim Zurücksetzen des Votings:", error);
         }
     });
 
