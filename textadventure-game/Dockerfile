@@ -24,5 +24,8 @@ COPY backend .
 # 🔥 Frontend Build übernehmen
 COPY --from=frontend /frontend/dist ./dist
 
+# 🎨 Skin-Bilder kopieren (falls nicht im Build enthalten)
+COPY frontend/src/assets/skins ./dist/assets/skins
+
 EXPOSE 3000
 CMD ["node", "app.js"]
