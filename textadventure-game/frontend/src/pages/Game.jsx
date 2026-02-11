@@ -66,6 +66,9 @@ export default function Game() {
     // Aktualisiere Story-Text wenn sich der Node ändert
     useEffect(() => {
         if (currentNode) {
+            console.log("📖 Story-Node aktualisiert:", currentNode);
+            console.log("📝 Neuer Titel:", currentNode.title);
+            console.log("📄 Neuer Content:", currentNode.content);
             setStoryText(currentNode.content);
         }
     }, [currentNode]);
@@ -153,9 +156,13 @@ export default function Game() {
 
     const loadNextNode = async (decisionId) => {
         try {
+            console.log("🔄 Lade nächsten Node für Decision ID:", decisionId);
+
             // Lade Decision um going_to zu bekommen
             const decisionResponse = await fetch(`/api/decision/${decisionId}`);
             const decision = await decisionResponse.json();
+
+            console.log("📋 Decision geladen:", decision);
 
             if (!decision.going_to) {
                 console.warn("Keine going_to Node gefunden, Spiel könnte zu Ende sein");
@@ -163,16 +170,24 @@ export default function Game() {
                 return;
             }
 
+            console.log("➡️ Nächster Node ID:", decision.going_to);
+
             // Lade den nächsten Story-Node
             const nodeResponse = await fetch(`/api/story_nodes/${decision.going_to}`);
             const nextNode = await nodeResponse.json();
+
+            console.log("✅ Nächster Story-Node geladen:", nextNode);
 
             // Lade die Decisions für den nächsten Node
             const decisionsResponse = await fetch(`/api/decisions/node/${decision.going_to}`);
             const nextDecisions = await decisionsResponse.json();
 
+            console.log("🎲 Decisions für nächsten Node geladen:", nextDecisions);
+
             setCurrentNode(nextNode);
             setDecisions(nextDecisions);
+
+            console.log("💾 State aktualisiert - currentNode gesetzt auf:", nextNode);
         } catch (error) {
             console.error("Fehler beim Laden des nächsten Nodes:", error);
         }
@@ -275,7 +290,7 @@ export default function Game() {
                                 backdropFilter: "blur(6px)",
                             }} 
                     >
-                        <div className="fw-semibold mb-2">Story</div>
+                        <div className="fw-semibold mb-2">{currentNode?.title || "Story"}</div>
                         <div style={{ whiteSpace: "pre-wrap" }}>{storyText}</div>
                     </section>
 
