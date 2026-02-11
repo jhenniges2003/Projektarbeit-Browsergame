@@ -1,5 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { io } from "socket.io-client";
 
 import Sidebar from "../components/Sidebar";
 import GameTimer from "../components/GameTimer";
@@ -10,10 +11,16 @@ export default function Game() {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const players = useMemo(() => {
-        const fromLobby = location.state?.players;
+    // Lade Daten aus Location State
+    const story = location.state?.story;
+    const lobbyId = location.state?.lobbyId;
+    const [currentNode, setCurrentNode] = useState(location.state?.currentNode);
+    const [decisions, setDecisions] = useState(location.state?.decisions || []);
 
-        if (Array.isArray(fromLobby) && fromLobby.length) return fromLobby;
+    const players = useMemo(() => {
+        const fromState = location.state?.players;
+
+        if (Array.isArray(fromState) && fromState.length) return fromState;
 
         return [
             { name: "Benutzer 1", characterName: "Magier", image: "https://placecats.com/300/300" },
@@ -25,40 +32,15 @@ export default function Game() {
 
     const playerCount = players.length;
 
-    const scenes = useMemo(
-        () => [
-            {
-                id: "s1",
-                text:
-                "Ihr betretet einen dunklen Wald. Zwischen den Bäumen hört ihr ein Knacken. Was tut ihr?",
-                options: ["Weitergehen", "Verstecken", "Rufen", "Zurücklaufen"],
-                nextTextByWinnerIndex: [
-                "Ihr geht weiter – und entdeckt eine alte Ruine.",
-                "Ihr versteckt euch – ein Schatten zieht vorbei.",
-                "Ihr ruft – eine Stimme antwortet aus der Dunkelheit.",
-                "Ihr rennt zurück – doch der Weg ist plötzlich versperrt.",
-                ],
-            },
-            {
-                id: "s2",
-                text:
-                "Vor euch liegt ein steinernes Tor mit Runen. Es wirkt uralt – aber aktiv. Was jetzt?",
-                options: ["Anfassen", "Magie prüfen", "Umgehen", "Warten"],
-                nextTextByWinnerIndex: [
-                "Als ihr es berührt, vibriert das Tor und öffnet sich einen Spalt.",
-                "Ihr spürt eine Aura – ein Schutzzauber liegt darüber.",
-                "Ihr findet einen schmalen Pfad an der Seite.",
-                "Ihr wartet – und hört Schritte näherkommen…",
-                ],
-            },
-        ], 
-        []
-    );
+    // Socket-Verbindung
+    const [socket] = useState(() => io("https://textadventure-game.thorben-dev.org", {
+        transports: ['websocket', 'polling'],
+        upgrade: true,
+        reconnection: true,
+        reconnectionDelay: 1000
+    }));
 
-    const [sceneIndex, setSceneIndex] = useState(0);
-    const scene = scenes[sceneIndex];
-
-    const [storyText, setStoryText] = useState(scene.text);
+    const [storyText, setStoryText] = useState(currentNode?.content || "");
 
     const [votes, setVotes] = useState({});
     const [roundLocked, setRoundLocked] = useState(false);
@@ -68,51 +50,100 @@ export default function Game() {
 
     const everyoneVoted = Object.keys(votes).length >= playerCount;
 
+    // Aktualisiere Story-Text wenn sich der Node ändert
     useEffect(() => {
-        setStoryText(scene.text);
-    }, [scene.id]);
+        if (currentNode) {
+            setStoryText(currentNode.content);
+        }
+    }, [currentNode]);
+
+    // Socket dem Lobby-Room beitreten
+    useEffect(() => {
+        if (lobbyId && socket.connected) {
+            socket.emit("joinRoom", { lobbyId });
+        } else if (lobbyId) {
+            socket.once("connect", () => {
+                socket.emit("joinRoom", { lobbyId });
+            });
+        }
+
+        return () => {
+            socket.disconnect();
+        };
+    }, [socket, lobbyId]);
 
     const voteAvatars = useMemo(() => {
-        const buckets = [[], [], [], []];
+        const buckets = Array(decisions.length).fill(null).map(() => []);
         Object.entries(votes).forEach(([playerIndexStr, optionIndex]) => {
             const playerIndex = Number(playerIndexStr);
-            const image = players[playerIndex]?.image;
+            const image = players[playerIndex]?.skin_image;
             if (image && buckets[optionIndex]) buckets[optionIndex].push(image);
         });
         return buckets;
-    }, [votes, players]);
+    }, [votes, players, decisions]);
 
     const computeWinnerIndex = (voteObject) => {
-        const counts = [0,0,0,0];
+        const counts = Array(decisions.length).fill(0);
         Object.values(voteObject).forEach((index) => {
-            if (index >= 0 && index < 4) counts[index] += 1;
+            if (index >= 0 && index < decisions.length) counts[index] += 1;
         });
 
         let winner = 0;
-        for (let i = 1; i < 4; i++) {
+        for (let i = 1; i < decisions.length; i++) {
             if (counts[i] > counts[winner]) winner = i;
         }
         return winner;
     };
 
-    const resetForNextScene = (nextSceneIdx) => {
+    const loadNextNode = async (decisionId) => {
+        try {
+            // Lade Decision um going_to zu bekommen
+            const decisionResponse = await fetch(`/api/decision/${decisionId}`);
+            const decision = await decisionResponse.json();
+
+            if (!decision.going_to) {
+                console.warn("Keine going_to Node gefunden, Spiel könnte zu Ende sein");
+                setStoryText("Das Spiel ist zu Ende.");
+                return;
+            }
+
+            // Lade den nächsten Story-Node
+            const nodeResponse = await fetch(`/api/story_nodes/${decision.going_to}`);
+            const nextNode = await nodeResponse.json();
+
+            // Lade die Decisions für den nächsten Node
+            const decisionsResponse = await fetch(`/api/decisions/node/${decision.going_to}`);
+            const nextDecisions = await decisionsResponse.json();
+
+            setCurrentNode(nextNode);
+            setDecisions(nextDecisions);
+        } catch (error) {
+            console.error("Fehler beim Laden des nächsten Nodes:", error);
+        }
+    };
+
+    const resetForNextScene = () => {
         setVotes({});
         setRoundLocked(false);
         setShowDice(false);
         setTimerKey((key) => key + 1);
-        setSceneIndex(nextSceneIdx);
     }
 
     const finishRoundWithWinner = (winnerIndex) => {
         setRoundLocked(true);
 
-        const nextText = scene.nextTextByWinnerIndex[winnerIndex] ?? scene.text;
-        setStoryText(nextText);
+        if (decisions[winnerIndex]) {
+            const selectedDecision = decisions[winnerIndex];
 
-        setTimeout(() => {
-            const nextSceneIndex = Math.min(sceneIndex + 1, scenes.length - 1);
-            resetForNextScene(nextSceneIndex);
-        }, 1200);
+            // Zeige zunächst die gewählte Entscheidung
+            setStoryText(`Entscheidung: ${selectedDecision.content}`);
+
+            setTimeout(async () => {
+                // Lade den nächsten Node basierend auf der gewählten Decision
+                await loadNextNode(selectedDecision.id);
+                resetForNextScene();
+            }, 2000);
+        }
     };
 
     const handleLocalVote = (_, optionIndex) => {
@@ -127,7 +158,7 @@ export default function Game() {
             setVotes((previous) => {
                 const next = {...previous};
                 for (let i = 1; i < playerCount; i++) {
-                    if (next[i] === undefined) next[i] = Math.floor(Math.random()*4);
+                    if (next[i] === undefined) next[i] = Math.floor(Math.random() * decisions.length);
                 }
                 return next;
             });
@@ -150,7 +181,7 @@ export default function Game() {
     }
 
     const handleDiceFinish = (result) => {
-        const winnerIndex = Math.max(1, Math.min(4, result)) - 1;
+        const winnerIndex = Math.max(1, Math.min(decisions.length, result)) - 1;
         finishRoundWithWinner(winnerIndex);
     }
 
@@ -233,7 +264,7 @@ export default function Game() {
                                 <div className="small" style={{color: "white"}}>Timer abgelaufen - Euer Schicksal entscheidet.</div>
                             </div>
 
-                            <GameDice max={4} onFinish={handleDiceFinish} />
+                            <GameDice max={decisions.length} onFinish={handleDiceFinish} />
                         </section>
                     )}
 
@@ -245,7 +276,7 @@ export default function Game() {
                              }}
                     >
                         <GameButtonGrid 
-                            options={scene.options}
+                            options={decisions.map(d => d.content)}
                             onSelect={handleLocalVote}
                             voteAvatars={voteAvatars}
                             disabled={roundLocked || showDice }

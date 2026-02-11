@@ -80,14 +80,29 @@ export default function Lobby() {
               alert(data.message || "Ein Fehler ist aufgetreten");
           });
 
+          socket.on("gameStarted", (data) => {
+              console.log("🎮 Spiel wurde gestartet:", data);
+              // Navigiere zur Game-Seite mit allen benötigten Daten
+              navigate("/game", {
+                  state: {
+                      story: data.story,
+                      currentNode: data.currentNode,
+                      decisions: data.decisions,
+                      players: data.players,
+                      lobbyId: lobbyId
+                  }
+              });
+          });
+
           return () => {
               socket.off("playerJoined");
               socket.off("playerLeft");
               socket.off("skinSelected");
               socket.off("skinRemoved");
               socket.off("error");
+              socket.off("gameStarted");
           };
-      }, [socket, lobbyId]);
+      }, [socket, lobbyId, navigate]);
 
       // Lade verfügbare Skins
       useEffect(() => {
@@ -132,12 +147,12 @@ export default function Lobby() {
       const enrichedPlayers = players.map(player => {
             if (player.skin_id) {
                   const skin = availableSkins.find(s => s.id === player.skin_id);
-                console.log("skin image:", skin.resource_path);
+                console.log("skin image:", skin?.resource_path);
 
                   if (skin) {
                         return {
                               ...player,
-                              skin_name: skin.character_name,
+                              skin_name: skin.name,
                               skin_image: skin.resource_path
                         };
                   }
@@ -145,28 +160,18 @@ export default function Lobby() {
             return player;
       });
 
-      const storySlides = [
-            {
-                  id: 1,
-                  title: "Coole Story",
-                  description: "In dieser Story bekämpft ihr gemeinsam den Wald",
-                  buttonLabel: "START",
-                  backgroundImage: new URL("../assets/images/background.png", import.meta.url).href,
-            },
-            {
-                  id: 2,
-                  title: "Schnelle Story",
-                  buttonLabel: "START",
-                  backgroundImage: new URL("../assets/images/background.png", import.meta.url).href,
-            }
-      ];
-
-      const handleStart = () => {
+      const handleStart = (selectedStory) => {
             if (players.length < 2) {
                   setShowPlayerAlert(true);
                   return;
             }
-            navigate("/game", { state: { players } });
+
+            // Sende startGame Event an Server mit Story-ID
+            console.log("Sende startGame Event mit Story:", selectedStory);
+            socket.emit("startGame", {
+                  lobbyId: lobbyId,
+                  storyId: selectedStory.id
+            });
       };
 
       const handleSkinSelect = (skinId) => {

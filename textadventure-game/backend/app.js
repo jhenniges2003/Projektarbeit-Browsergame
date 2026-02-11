@@ -185,6 +185,71 @@ io.on("connection", (socket) => {
         }
     });
 
+    socket.on("startGame", async (data) => {
+        try {
+            console.log("Spiel wird gestartet - Lobby ID:", data.lobbyId, "Story ID:", data.storyId);
+
+            if (!data.lobbyId || !data.storyId) {
+                throw new Error("Lobby ID oder Story ID fehlt");
+            }
+
+            // Lade Story-Details mit Start-Node
+            const [storyRows] = await dbInstance.query(
+                "SELECT * FROM stories WHERE id = ?",
+                [data.storyId]
+            );
+
+            if (storyRows.length === 0) {
+                throw new Error("Story nicht gefunden");
+            }
+
+            const story = storyRows[0];
+
+            // Lade den ersten Story-Node
+            const [nodeRows] = await dbInstance.query(
+                "SELECT * FROM story_nodes WHERE id = ?",
+                [story.start_story_node_id]
+            );
+
+            if (nodeRows.length === 0) {
+                throw new Error("Start-Story-Node nicht gefunden");
+            }
+
+            const startNode = nodeRows[0];
+
+            // Lade die Decisions für den Start-Node
+            const [decisionRows] = await dbInstance.query(
+                "SELECT * FROM decisions WHERE coming_from = ?",
+                [story.start_story_node_id]
+            );
+
+            // Lade alle Spieler in der Lobby mit Skin-Informationen
+            const [playersRows] = await dbInstance.query(
+                `SELECT p.*, s.name as skin_name, s.resource_path as skin_image
+                 FROM players p 
+                 LEFT JOIN skins s ON p.skin_id = s.id 
+                 WHERE p.lobby_id = ?`,
+                [data.lobbyId]
+            );
+
+            // Benachrichtige alle Spieler in der Lobby über den Spielstart
+            io.to(data.lobbyId).emit("gameStarted", {
+                story: story,
+                currentNode: startNode,
+                decisions: decisionRows,
+                players: playersRows
+            });
+
+            console.log("Spiel gestartet für Lobby:", data.lobbyId);
+
+        } catch (error) {
+            console.error("Fehler beim Starten des Spiels:", error);
+            socket.emit("error", {
+                message: error.message || "Spiel konnte nicht gestartet werden"
+            });
+        }
+    });
+
     socket.on("disconnect", async () => {
         console.log("Spieler getrennt:", socket.id);
 
