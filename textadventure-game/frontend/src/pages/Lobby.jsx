@@ -27,8 +27,8 @@ export default function Lobby() {
       const [stories, setStories] = useState([]);
 
       // Socket-Verbindung
-      // const [socket] = useState(() => io("https://textadventure-game.thorben-dev.org", {
-      const [socket] = useState(() => io("http://localhost:3000", {
+      const [socket] = useState(() => io("https://textadventure-game.thorben-dev.org", {
+      // const [socket] = useState(() => io("http://localhost:3000", {
           transports: ['websocket', 'polling'],
           upgrade: true,
           reconnection: true,

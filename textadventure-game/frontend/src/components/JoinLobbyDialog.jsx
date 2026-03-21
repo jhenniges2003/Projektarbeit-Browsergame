@@ -6,8 +6,8 @@ export default function JoinLobbyDialog({open, close, playerName, failedJoin = f
     const navigate = useNavigate();
     const [lobbyCode, setLobbyCode] = useState("");
     const inputRef = useRef(null);
-    const [socket] = useState(() => io("http://localhost:3000", {
-    // const [socket] = useState(() => io("https://textadventure-game.thorben-dev.org", {
+    // const [socket] = useState(() => io("http://localhost:3000", {
+    const [socket] = useState(() => io("https://textadventure-game.thorben-dev.org", {
         transports: ['websocket', 'polling'],
         upgrade: true,
         reconnection: true,

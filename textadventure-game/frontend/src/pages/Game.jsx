@@ -44,7 +44,8 @@ export default function Game() {
     const playerCount = players.length;
 
     // Socket-Verbindung
-    const [socket] = useState(() => io("http://localhost:3000", {
+    // const [socket] = useState(() => io("http://localhost:3000", {
+    const [socket] = useState(() => io("https://textadventure-game.thorben-dev.org", {
         transports: ['websocket', 'polling'],
         upgrade: true,
         reconnection: true,
