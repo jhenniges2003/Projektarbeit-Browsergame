@@ -21,7 +21,7 @@ export default function Menu() {
 
     const nameMissing = nameTouched && !name.trim()
 
-    const [socket] = useState(() => io("https://textadventure-game.thorben-dev.org", {
+    const [socket] = useState(() => io("http://localhost:3000", {
         transports: ['websocket', 'polling'],
         upgrade: true,
         reconnection: true,

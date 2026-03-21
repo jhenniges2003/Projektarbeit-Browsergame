@@ -137,6 +137,8 @@ export async function joinLobbyInDB(playerName, joinCode) {
  * @param {number} playerId - ID des Spielers
  * @returns {Promise<{message: string, lobby_players_count: number, lobby_empty: boolean}>}
  */
+//TODO: Spieler löschen
+//TODO: Eventuell auch lobby löschen, wenn sie leer ist.
 export async function leaveLobbyInDB(lobbyId, playerId) {
     try {
         // 1. Spieler aus Lobby entfernen

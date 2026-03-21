@@ -44,7 +44,7 @@ export default function Game() {
     const playerCount = players.length;
 
     // Socket-Verbindung
-    const [socket] = useState(() => io("https://textadventure-game.thorben-dev.org", {
+    const [socket] = useState(() => io("http://localhost:3000", {
         transports: ['websocket', 'polling'],
         upgrade: true,
         reconnection: true,
@@ -113,6 +113,8 @@ export default function Game() {
         socket.on("error", (data) => {
             console.error("❌ Socket Error:", data);
             alert(data.message || "Ein Fehler ist aufgetreten");
+            socket.disconnect();
+            navigate("/menu");
         });
 
         return () => {
@@ -184,10 +186,22 @@ export default function Game() {
 
             console.log("🎲 Decisions für nächsten Node geladen:", nextDecisions);
 
-            setCurrentNode(nextNode);
-            setDecisions(nextDecisions);
+            // Nächste Array Leer?
+            if (nextDecisions.length < 1) {
+                console.error("Es konnten keine Decisions geladen werden.");
+                setStoryText("Fehler: Es konnten keine Entscheidungen für den nächsten Schritt geladen werden.");
 
-            console.log("💾 State aktualisiert - currentNode gesetzt auf:", nextNode);
+                setTimeout(function(){
+                    socket.emit("error", { lobbyId, message: "Es konnten keine Entscheidungen für den nächsten Schritt geladen werden. Das Spiel kann nicht fortgesetzt werden." });
+                    console.log("🔌 Socket-Connection wird getrennt.");
+                }, 5000);
+
+                return;
+            } else {
+                setCurrentNode(nextNode);
+                setDecisions(nextDecisions);
+            }
+
         } catch (error) {
             console.error("Fehler beim Laden des nächsten Nodes:", error);
         }
